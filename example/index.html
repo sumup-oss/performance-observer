@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Performance Observer Example</title>
+
+    <!-- PERFORMANCE OBSERVER CODE -->
+    <script>
+      !(function(e, t) {
+        'object' == typeof exports && 'undefined' != typeof module
+          ? (module.exports = t())
+          : 'function' == typeof define && define.amd
+          ? define(t)
+          : ((e = e || self).createPerformanceObserver = t());
+      })(this, function() {
+        'use strict';
+        function e(e) {
+          var t = 'function' == typeof Symbol && e[Symbol.iterator],
+            r = 0;
+          return t
+            ? t.call(e)
+            : {
+                next: function() {
+                  return (
+                    e && r >= e.length && (e = void 0),
+                    { value: e && e[r++], done: !e }
+                  );
+                }
+              };
+        }
+        var t = ['first-paint', 'first-contentful-paint', 'first-input-delay'],
+          r = {
+            'first-input-delay': 'first-input',
+            'first-paint': 'paint',
+            'first-contentful-paint': 'paint',
+            'element-timing': 'element',
+            'navigation-timing': 'navigation',
+            'resource-timing': 'resource',
+            'user-timing': 'measure'
+          },
+          n = {
+            'first-input-delay': 'duration',
+            'first-paint': 'startTime',
+            'first-contentful-paint': 'startTime',
+            'element-timing': 'startTime',
+            'navigation-timing': 'duration',
+            'resource-timing': 'duration',
+            'user-timing': 'duration'
+          };
+        function i(i) {
+          void 0 === i && (i = t);
+          var a = {};
+          function o(e, t, r, n) {
+            var i = { name: e, duration: n[r] };
+            return (
+              'element' === t && n.identifier && (i.name = n.identifier),
+              ('paint' !== t && 'measure' !== t) || (i.name = n.name),
+              ('resource' !== t && 'navigation' !== t) || (i.url = n.name),
+              i
+            );
+          }
+          function f(t, i) {
+            var f = r[t],
+              u = n[t];
+            if (f && u && !a[f]) {
+              var l = new PerformanceObserver(function(r) {
+                var n,
+                  a,
+                  l = r.getEntries();
+                try {
+                  for (var c = e(l), s = c.next(); !s.done; s = c.next()) {
+                    var m = s.value;
+                    if (m.entryType === f) {
+                      var d = o(t, f, u, m);
+                      i(d, m);
+                    }
+                  }
+                } catch (e) {
+                  n = { error: e };
+                } finally {
+                  try {
+                    s && !s.done && (a = c.return) && a.call(c);
+                  } finally {
+                    if (n) throw n.error;
+                  }
+                }
+              });
+              try {
+                l.observe({ type: f, buffered: !0 });
+              } catch (e) {}
+              return (a[f] = l), l;
+            }
+          }
+          return {
+            observe: f,
+            observeAll: function(t) {
+              var r, n;
+              try {
+                for (var o = e(i), u = o.next(); !u.done; u = o.next()) {
+                  f(u.value, t);
+                }
+              } catch (e) {
+                r = { error: e };
+              } finally {
+                try {
+                  u && !u.done && (n = o.return) && n.call(o);
+                } finally {
+                  if (r) throw r.error;
+                }
+              }
+              return a;
+            },
+            disconnectAll: function() {
+              var t,
+                r,
+                n = Object.keys(a);
+              try {
+                for (var i = e(n), o = i.next(); !o.done; o = i.next()) {
+                  var f = o.value,
+                    u = a[f];
+                  u && u.disconnect();
+                }
+              } catch (e) {
+                t = { error: e };
+              } finally {
+                try {
+                  o && !o.done && (r = i.return) && r.call(i);
+                } finally {
+                  if (t) throw t.error;
+                }
+              }
+            }
+          };
+        }
+        return (i.metricToEntryTypeMap = r), (i.metricToEntryMeasureMap = n), i;
+      });
+    </script>
+
+    <!-- TEST CODE -->
+    <script>
+      (function() {
+        initPerformanceObserver();
+        initDynamicText();
+        initLongRunningTasks();
+
+        function initPerformanceObserver() {
+          var targetMetrics = [
+            'first-paint',
+            'first-contentful-paint',
+            'first-input-delay',
+            'element-timing',
+            'resource-timing',
+            'navigation-timing',
+            'user-timing'
+          ];
+          var performanceObserver = window.createPerformanceObserver(
+            targetMetrics
+          );
+
+          performanceObserver.observeAll(function(trackingData, rawEntry) {
+            console.group();
+            console.log('tracking data', trackingData);
+            console.log('raw entry', rawEntry);
+            console.groupEnd();
+          });
+        }
+
+        function initDynamicText() {
+          window.performance.mark('create-dynamic-text:start');
+          setTimeout(function() {
+            document.getElementById('text').innerText =
+              'Lorem ipsum dolor sit amet...';
+            window.performance.mark('create-dynamic-text:end');
+            window.performance.measure(
+              'create-dynamic-text',
+              'create-dynamic-text:start',
+              'create-dynamic-text:end'
+            );
+          }, 2000);
+        }
+
+        // code taken from fake TTI test -
+        // https://tests.boris.schapira.dev/longtask/
+        function initLongRunningTasks() {
+          // with this timer, we ensure a longtask every 2 second
+          var tref = Date.now();
+          fireLongTask();
+          var myTimer = setInterval(fireLongTask, 2000);
+
+          function fireLongTask() {
+            var t1,
+              t0 = Date.now(),
+              i = 1,
+              j = 2,
+              k;
+
+            while (true) {
+              t1 = Date.now();
+              k = i;
+              i = j;
+              j = k + j;
+              if (t1 - t0 > 51) break;
+            }
+
+            if (t1 - tref > 20000) {
+              clearInterval(myTimer);
+            }
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div style="background: red; width: 300px; height: 50px;"></div>
+    <div id="text" elementtiming="dynamic-text-render"></div>
+    <img
+      elementtiming="sumup-logo-render"
+      src="/image.png/?delay=3000"
+      width="300"
+    />
+  </body>
+</html>

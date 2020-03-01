@@ -1,4 +1,5 @@
 <div align="center">
+    
 # Performance Observer
 
 <!-- [![Version](https://img.shields.io/npm/v/@sumup/performance-observer)](https://www.npmjs.com/package/@sumup/performance-observer)

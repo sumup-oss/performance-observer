@@ -1,6 +1,6 @@
 # Performance Observer
 
-> Generic interface for subscribing to [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver)'s performance measurement events.
+> Generic interface for getting [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver)'s performance measurement events.
 
 ## Install
 
@@ -141,29 +141,29 @@ performanceObserver.observe('navigation-timing',
 
 ### Subscribe to all events in one batch
 
-Custom set of events
+#### Custom set of events
 
 ```js
 import createPerformanceObserver from '@sumup/performance-observer';
 
 const performanceObserver = createPerformanceObserver([
-  'first-contentful-paint',
-  'resource-timing'
+    'first-contentful-paint',
+    'resource-timing'
 ]);
 
 performanceObserver.observeAll(({ name, url, duration }) => {
-  if (url) {
-    console.log(`"${name}": ${duration}ms;`);
-  } else {
-    console.log(`"${name}" (${url}): ${duration}ms;`);
-  }
-  // handler will be called 2 times with such outputs, e.g:
-  // "first-contentful-paint": 1041ms;
-  // "resource-timing" (http://sumup.com/image.png): 1272ms;
+    if (url) {
+        console.log(`"${name}" (${url}): ${duration}ms;`);
+    } else {
+        console.log(`"${name}": ${duration}ms;`);
+    }
+    // handler will be called 2 times with such outputs, e.g:
+    // "first-contentful-paint": 1041ms;
+    // "resource-timing" (http://sumup.com/image.png): 1272ms;
 });
 ```
 
-Default set of events (`first-paint`, `first-contentful-paint`, `first-input-delay`):
+#### Default set of events (`first-paint`, `first-contentful-paint`, `first-input-delay`):
 
 ```js
 import createPerformanceObserver from '@sumup/performance-observer';
@@ -171,11 +171,11 @@ import createPerformanceObserver from '@sumup/performance-observer';
 const performanceObserver = createPerformanceObserver();
 
 performanceObserver.observeAll(({ name, url, duration }) => {
-  console.log(`"${name}": ${duration}ms;`);
-  // handler will be called 3 times with such outputs, e.g:
-  // "first-paint": 1041ms
-  // "first-contentful-paint": 1042ms
-  // "first-input-delay": 20ms
+    console.log(`"${name}": ${duration}ms;`);
+    // handler will be called 3 times with such outputs, e.g:
+    // "first-paint": 1041ms
+    // "first-contentful-paint": 1042ms
+    // "first-input-delay": 20ms
 });
 ```
 
@@ -195,29 +195,29 @@ performanceObserver.observeAll(({ name, url, duration }) => {
 
 ## Supported events
 
-- first-paint ("paint" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
-- first-contentful-paint ("paint" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
-  - https://web.dev/fcp
-- first-input-delay ("first-input" entry)
-  - https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
-  - https://web.dev/fid
-- user-timing ("measure" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
-  - https://web.dev/custom-metrics/#user-timing-api
-- element-timing ("element" entry)
-  - https://web.dev/custom-metrics/#element-timing-api
-- resource-timing ("resource" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
-  - https://web.dev/custom-metrics/#resource-timing-api
-- navigation-timing ("navigation" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
-  - https://web.dev/custom-metrics/#navigation-timing-api
+-   first-paint ("paint" entry)
+    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
+-   first-contentful-paint ("paint" entry)
+    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
+    -   https://web.dev/fcp
+-   first-input-delay ("first-input" entry)
+    -   https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
+    -   https://web.dev/fid
+-   user-timing ("measure" entry)
+    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
+    -   https://web.dev/custom-metrics/#user-timing-api
+-   element-timing ("element" entry)
+    -   https://web.dev/custom-metrics/#element-timing-api
+-   resource-timing ("resource" entry)
+    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
+    -   https://web.dev/custom-metrics/#resource-timing-api
+-   navigation-timing ("navigation" entry)
+    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
+    -   https://web.dev/custom-metrics/#navigation-timing-api
 
 ## Maintainers
 
-- [Dmitri Voronianski](mailto:dmitri.voronianskyi@sumup.com)
+-   [Dmitri Voronianski](mailto:dmitri.voronianskyi@sumup.com)
 
 ## About SumUp
 

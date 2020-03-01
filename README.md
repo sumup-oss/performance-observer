@@ -12,7 +12,7 @@
     -   [Subscribe to individual events](#subscribe-to-individual-events)
     -   [Subscribe to all events](#subscribe-to-all-events-in-one-batch)
     -   [Accessing raw PerformanceEntry](#accessing-raw-performanceentry)
-    -   [Disconnecting observers](#disconnecting-observers)
+    -   [Unsubscribing from observers](#disconnecting-observers)
 -   [API](#api)
 -   [List of supported events](#supported-events)
 -   [Code of conduct](#code-of-conduct)

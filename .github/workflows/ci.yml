@@ -1,6 +1,6 @@
-name: Test
+name: ci
 
-on: 
+on:
   # trigger the workflow on push or pull request, but only for the master branch
   push:
     branches:
@@ -17,10 +17,10 @@ jobs:
         with:
           node-version: '10.x'
       - uses: actions/checkout@v1
-      - name: Set up Python 2.7.16
+      - name: Set up Python 2.7.17
         uses: actions/setup-python@v1
         with:
-          python-version: '2.7.16'
+          python-version: '2.7.17'
       - name: Set node config to use python2.7
         run: yarn config set python python2.7
       - name: install node-gyp
@@ -29,7 +29,7 @@ jobs:
         run: yarn
       - name: Lint
         run: yarn lint
-      - name: Build
-        run: yarn build
       - name: Test
         run: yarn test
+      - name: Build
+        run: yarn build

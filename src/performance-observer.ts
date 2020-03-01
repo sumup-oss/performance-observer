@@ -139,9 +139,11 @@ function createPerformanceObserver(
     const entryTypes = Object.keys(perfObservers);
 
     for (const entryType of entryTypes as IPerfObserverType[]) {
-      const observer = perfObservers[entryType]!;
+      const observer = perfObservers[entryType];
 
-      observer.disconnect();
+      if (observer) {
+        observer.disconnect();
+      }
     }
   }
 

@@ -1,0 +1,35 @@
+name: Test
+
+on: 
+  # trigger the workflow on push or pull request, but only for the master branch
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+      - uses: actions/checkout@v1
+      - name: Set up Python 2.7.16
+        uses: actions/setup-python@v1
+        with:
+          python-version: '2.7.16'
+      - name: Set node config to use python2.7
+        run: yarn config set python python2.7
+      - name: install node-gyp
+        run: yarn add node-gyp@latest
+      - name: Install dependencies
+        run: yarn
+      - name: Lint
+        run: yarn lint
+      - name: Build
+        run: yarn build
+      - name: Test
+        run: yarn test

@@ -1,15 +1,26 @@
-<div align="center">
-    
-# Performance Observer
+# ⚡️ Performance Observer
 
 <!-- [![Version](https://img.shields.io/npm/v/@sumup/performance-observer)](https://www.npmjs.com/package/@sumup/performance-observer)
 [![Coverage](https://img.shields.io/codecov/c/github/sumup/performance-observer)](https://codecov.io/gh/sumup-oss/performance-observer) [![License](https://img.shields.io/github/license/sumup/performance-observer)](https://github.com/sumup-oss/performance-observer/blob/master/LICENSE) -->
 
-Generic interface for subscribing to all [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver)'s performance measurement events.
+> Generic interface for subscribing to all [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver)'s performance measurement events.
 
-</div>
+## Table of Contents <!-- omit in toc -->
 
-## Install
+-   [Installation](#installation)
+-   [Usage](#usage)
+    -   [Subscribe to individual events](#subscribe-to-individual-events)
+    -   [Subscribe to all events](#subscribe-to-all-events-in-one-batch)
+    -   [Accessing raw PerformanceEntry](#accessing-raw-performanceentry)
+    -   [Disconnecting observers](#disconnecting-observers)
+-   [API](#api)
+-   [List of supported events](#supported-events)
+-   [Code of conduct](#code-of-conduct)
+    -   [Maintainers](#maintainers)
+-   [Contributing](#contributing)
+-   [About SumUp](#about-sumup)
+
+## Installation
 
 ```
 npm install @sumup/performance-observer --save
@@ -200,31 +211,42 @@ performanceObserver.observeAll(({ name, url, duration }) => {
 
 #### `disconnectAll()`
 
-## Supported events
+## List of supported events
 
--   first-paint ("paint" entry)
+-   `first-paint` ("paint" entry)
     -   https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
--   first-contentful-paint ("paint" entry)
+-   `first-contentful-paint` ("paint" entry)
     -   https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
     -   https://web.dev/fcp
--   first-input-delay ("first-input" entry)
+-   `first-input-delay` ("first-input" entry)
     -   https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
     -   https://web.dev/fid
--   user-timing ("measure" entry)
+-   `user-timing` ("measure" entry)
     -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
     -   https://web.dev/custom-metrics/#user-timing-api
--   element-timing ("element" entry)
+-   `element-timing` ("element" entry)
     -   https://web.dev/custom-metrics/#element-timing-api
--   resource-timing ("resource" entry)
+-   `resource-timing` ("resource" entry)
     -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
     -   https://web.dev/custom-metrics/#resource-timing-api
--   navigation-timing ("navigation" entry)
+-   `navigation-timing` ("navigation" entry)
     -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
     -   https://web.dev/custom-metrics/#navigation-timing-api
 
-## Maintainers
+## Code of conduct
+
+We want to foster an inclusive and friendly community around our Open Source efforts. Like all SumUp Open Source projects, this project follows the Contributor Covenant Code of Conduct. Please, [read it and follow it](CODE_OF_CONDUCT.md).
+
+If you feel another member of the community violated our CoC or you are experiencing problems participating in our community because of another individual's behavior, please get in touch with our maintainers. We will enforce the CoC.
+
+### Maintainers
 
 -   [Dmitri Voronianski](mailto:dmitri.voronianskyi@sumup.com)
+-   [Fernando Fleury](mailto:fernando.fleury@sumup.com)
+
+## Contributing
+
+If you have ideas for how we could improve this readme or the project in general, [let us know](https://github.com/sumup-oss/performance-observer/issues) or [contribute some](https://github.com/sumup-oss/performance-observer/edit/master/README.md)
 
 ## About SumUp
 

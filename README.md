@@ -1,6 +1,12 @@
+<div align="center">
 # Performance Observer
 
-> Generic interface for getting [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver)'s performance measurement events.
+[![Version](https://img.shields.io/npm/v/@sumup/performance-observer)](https://www.npmjs.com/package/@sumup/performance-observer)
+[![Coverage](https://img.shields.io/codecov/c/github/sumup/performance-observer)](https://codecov.io/gh/sumup-oss/performance-observer) [![License](https://img.shields.io/github/license/sumup/performance-observer)](https://github.com/sumup-oss/performance-observer/blob/master/LICENSE)
+
+> Generic interface for subscribing to all [PerformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver)'s performance measurement events.
+
+</div>
 
 ## Install
 

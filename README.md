@@ -12,7 +12,7 @@
     -   [Subscribe to individual events](#subscribe-to-individual-events)
     -   [Subscribe to all events](#subscribe-to-all-events-in-one-batch)
     -   [Accessing raw PerformanceEntry](#accessing-raw-performanceentry)
-    -   [Unsubscribing from observers](#disconnecting-observers)
+    -   [Unsubscribing observers](#unsubscribing-observers)
 -   [API](#api)
 -   [List of supported events](#supported-events)
 -   [Code of conduct](#code-of-conduct)
@@ -199,7 +199,7 @@ performanceObserver.observeAll(({ name, url, duration }) => {
 
 ### Accessing raw [PerformanceEntry](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry)
 
-### Disconnecting observers
+### Unsubscribing observers
 
 ## API
 

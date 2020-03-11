@@ -7,18 +7,18 @@
 
 ## Table of Contents <!-- omit in toc -->
 
--   [Installation](#installation)
--   [Usage](#usage)
-    -   [Subscribe to individual events](#subscribe-to-individual-events)
-    -   [Subscribe to all events](#subscribe-to-all-events-in-one-batch)
-    -   [Accessing raw PerformanceEntry](#accessing-raw-performanceentry)
-    -   [Unsubscribing observers](#unsubscribing-observers)
--   [API](#api)
--   [List of supported events](#supported-events)
--   [Code of conduct](#code-of-conduct)
-    -   [Maintainers](#maintainers)
--   [Contributing](#contributing)
--   [About SumUp](#about-sumup)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Subscribe to individual events](#subscribe-to-individual-events)
+  - [Subscribe to all events](#subscribe-to-all-events-in-one-batch)
+  - [Accessing raw PerformanceEntry](#accessing-raw-performanceentry)
+  - [Unsubscribing observers](#unsubscribing-observers)
+- [API](#api)
+- [List of supported events](#supported-events)
+- [Code of conduct](#code-of-conduct)
+  - [Maintainers](#maintainers)
+- [Contributing](#contributing)
+- [About SumUp](#about-sumup)
 
 ## Installation
 
@@ -157,6 +157,23 @@ performanceObserver.observe('navigation-timing',
 );
 ```
 
+#### Longtask
+
+> ⚠️ Important: you can track longtasks only by creating the observer in the `<head>` of your pages, before loading any other scripts. It's needed because `buffered` flag is not currently supported for longtasks in any browser.
+
+```js
+import createPerformanceObserver from '@sumup/performance-observer';
+
+const performanceObserver = createPerformanceObserver();
+
+performanceObserver.observe('longtask',
+  ({ name, url })) => {
+    console.log(`"${name}": ${duration}ms;`);
+    // e.g. "longtask": 51ms;
+  }
+);
+```
+
 ### Subscribe to all events in one batch
 
 #### Custom set of events
@@ -165,19 +182,19 @@ performanceObserver.observe('navigation-timing',
 import createPerformanceObserver from '@sumup/performance-observer';
 
 const performanceObserver = createPerformanceObserver([
-    'first-contentful-paint',
-    'resource-timing'
+  'first-contentful-paint',
+  'resource-timing'
 ]);
 
 performanceObserver.observeAll(({ name, url, duration }) => {
-    if (url) {
-        console.log(`"${name}" (${url}): ${duration}ms;`);
-    } else {
-        console.log(`"${name}": ${duration}ms;`);
-    }
-    // handler will be called 2 times with such outputs, e.g:
-    // "first-contentful-paint": 1041ms;
-    // "resource-timing" (http://sumup.com/image.png): 1272ms;
+  if (url) {
+    console.log(`"${name}" (${url}): ${duration}ms;`);
+  } else {
+    console.log(`"${name}": ${duration}ms;`);
+  }
+  // handler will be called 2 times with such outputs, e.g:
+  // "first-contentful-paint": 1041ms;
+  // "resource-timing" (http://sumup.com/image.png): 1272ms;
 });
 ```
 
@@ -189,11 +206,11 @@ import createPerformanceObserver from '@sumup/performance-observer';
 const performanceObserver = createPerformanceObserver();
 
 performanceObserver.observeAll(({ name, url, duration }) => {
-    console.log(`"${name}": ${duration}ms;`);
-    // handler will be called 3 times with such outputs, e.g:
-    // "first-paint": 1041ms
-    // "first-contentful-paint": 1042ms
-    // "first-input-delay": 20ms
+  console.log(`"${name}": ${duration}ms;`);
+  // handler will be called 3 times with such outputs, e.g:
+  // "first-paint": 1041ms
+  // "first-contentful-paint": 1042ms
+  // "first-input-delay": 20ms
 });
 ```
 
@@ -213,25 +230,25 @@ performanceObserver.observeAll(({ name, url, duration }) => {
 
 ## List of supported events
 
--   `first-paint` ("paint" entry)
-    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
--   `first-contentful-paint` ("paint" entry)
-    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
-    -   https://web.dev/fcp
--   `first-input-delay` ("first-input" entry)
-    -   https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
-    -   https://web.dev/fid
--   `user-timing` ("measure" entry)
-    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
-    -   https://web.dev/custom-metrics/#user-timing-api
--   `element-timing` ("element" entry)
-    -   https://web.dev/custom-metrics/#element-timing-api
--   `resource-timing` ("resource" entry)
-    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
-    -   https://web.dev/custom-metrics/#resource-timing-api
--   `navigation-timing` ("navigation" entry)
-    -   https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
-    -   https://web.dev/custom-metrics/#navigation-timing-api
+- `first-paint` ("paint" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
+- `first-contentful-paint` ("paint" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
+  - https://web.dev/fcp
+- `first-input-delay` ("first-input" entry)
+  - https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
+  - https://web.dev/fid
+- `user-timing` ("measure" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
+  - https://web.dev/custom-metrics/#user-timing-api
+- `element-timing` ("element" entry)
+  - https://web.dev/custom-metrics/#element-timing-api
+- `resource-timing` ("resource" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
+  - https://web.dev/custom-metrics/#resource-timing-api
+- `navigation-timing` ("navigation" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
+  - https://web.dev/custom-metrics/#navigation-timing-api
 
 ## Code of conduct
 
@@ -241,8 +258,8 @@ If you feel another member of the community violated our CoC or you are experien
 
 ### Maintainers
 
--   [Dmitri Voronianski](mailto:dmitri.voronianskyi@sumup.com)
--   [Fernando Fleury](mailto:fernando.fleury@sumup.com)
+- [Dmitri Voronianski](mailto:dmitri.voronianskyi@sumup.com)
+- [Fernando Fleury](mailto:fernando.fleury@sumup.com)
 
 ## Contributing
 

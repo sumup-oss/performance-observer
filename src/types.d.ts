@@ -32,7 +32,8 @@ export type IPerfObserverMetric =
   | 'element-timing'
   | 'navigation-timing'
   | 'resource-timing'
-  | 'user-timing';
+  | 'user-timing'
+  | 'longtask';
 
 export type IPerfObserverMeasure = 'startTime' | 'duration';
 
@@ -42,7 +43,8 @@ export type IPerfObserverType =
   | 'element'
   | 'navigation'
   | 'paint'
-  | 'resource';
+  | 'resource'
+  | 'longtask';
 
 export type IPerfObservers = {
   [key in IPerfObserverType]?: PerformanceObserver;

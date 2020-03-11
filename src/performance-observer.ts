@@ -38,7 +38,8 @@ const metricToEntryTypeMap: IPerfObserverMetricMap = {
   'element-timing': 'element',
   'navigation-timing': 'navigation',
   'resource-timing': 'resource',
-  'user-timing': 'measure'
+  'user-timing': 'measure',
+  longtask: 'longtask'
 };
 
 const metricToEntryMeasureMap: IPerfObserverMeasureMap = {
@@ -48,7 +49,8 @@ const metricToEntryMeasureMap: IPerfObserverMeasureMap = {
   'element-timing': 'startTime',
   'navigation-timing': 'duration',
   'resource-timing': 'duration',
-  'user-timing': 'duration'
+  'user-timing': 'duration',
+  longtask: 'duration'
 };
 
 function createPerformanceObserver(
@@ -96,6 +98,7 @@ function createPerformanceObserver(
       return;
     }
 
+    const isBuffered = entryType !== 'longtask';
     const observer = new PerformanceObserver(entryList => {
       const entries = entryList.getEntries();
 
@@ -114,7 +117,10 @@ function createPerformanceObserver(
     });
 
     try {
-      observer.observe({ type: entryType, buffered: true });
+      observer.observe({
+        type: entryType,
+        buffered: isBuffered
+      });
     } catch (e) {}
 
     perfObservers[entryType] = observer;

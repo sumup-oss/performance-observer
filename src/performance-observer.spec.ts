@@ -42,12 +42,18 @@ describe('performance-observer module', () => {
     name: 'my-custom-metric',
     duration: 3
   };
+  const mockLongtask = {
+    entryType: 'longtask',
+    name: 'self',
+    duration: 51
+  };
   const mockPeformanceEntries = [
     mockFirstInputDelay,
     mockFirstContentfulPaint,
     mockElementTiming,
     mockResourceTiming,
-    mockCustomMetric
+    mockCustomMetric,
+    mockLongtask
   ];
 
   const { PerformanceObserver } = window as any;
@@ -157,6 +163,21 @@ describe('performance-observer module', () => {
       performanceObserver.observe(metricName, done);
 
       expect(done).toHaveBeenNthCalledWith(1, trackingData, mockCustomMetric);
+    });
+
+    it('should track longtask metrics', () => {
+      const metricName = 'longtask';
+      const done = jest.fn();
+      const trackingData = {
+        name: metricName,
+        duration: mockLongtask.duration
+      };
+
+      const performanceObserver = createPerformanceObserver();
+
+      performanceObserver.observe(metricName, done);
+
+      expect(done).toHaveBeenNthCalledWith(1, trackingData, mockLongtask);
     });
 
     it('should not track unexisting metrics', () => {

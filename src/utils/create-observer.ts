@@ -11,7 +11,6 @@ export default function createObserver(
       return;
     }
 
-    // handlers are defined per api names (e.g. paint, largest-contentful-paint etc.)
     const onEntries = (entryList: PerformanceObserverEntryList): void => {
       const entries = entryList.getEntries();
 
@@ -21,8 +20,8 @@ export default function createObserver(
     };
     const po = new PerformanceObserver(onEntries);
 
-    // observe entries including buffered ones -
-    // buffered entries occurred before calling `observe()` below.
+    // observe entries including buffered ones,
+    // buffered entries occurre before calling `observe()` below.
     po.observe({ type: entryType, buffered: true });
 
     return po;

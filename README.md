@@ -10,12 +10,14 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [Subscribe to individual metrics](#subscribe-to-individual-metrics)
-  - [Subscribe to batch of metrics](#subscribe-to-several-metrics-in-one-batch)
-  - [Unsubscribe from metrics](#unsubscribe-from-metric-updates)
+  - [Subscribe to several metrics](#subscribe-to-several-metrics-in-one-batch)
+  - [Unsubscribe from individual metric](#unsubscribe-from-individual-metric)
+  - [Unsubscribe from several metrics](#unsubscribe-from-several-metrics)
 - [API](#api)
   - [Types](#types)
   - [Methods](#types)
 - [List of supported metrics](#supported-metrics)
+- [Browser support](#browser-support)
 - [Code of conduct](#code-of-conduct)
   - [Maintainers](#maintainers)
 - [Contributing](#contributing)
@@ -198,18 +200,18 @@ performanceObserver.observeAll(
 );
 ```
 
-### Unsubscribe from metric updates
+### Unsubscribe from individual metric
+
+### Unsubscribe from several metrics
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
 
-const metricValues = {}
+const metricValues = {};
 performanceObserver.observeAll(
   ['first-contentful-paint', 'first-input-delay'],
   ({ name, value }) => {
     metricValues[name] = value;
-
-    if ()
   }
 );
 ```
@@ -227,6 +229,7 @@ type IMetricName =
   | 'largest-contentful-paint'
   | 'first-input-delay'
   | 'cumulative-layout-shift'
+  | 'time-to-first-byte'
   | 'user-timing'
   | 'element-timing'
   | 'navigation-timing'
@@ -351,6 +354,9 @@ Constant map of public metric names to corresponding browser internal entry type
   - https://web.dev/fid
 - `cumulative-layout-shift` ("layout-shift" entry)
   - https://web.dev/cls
+- `time-to-first-byte` ("navigation" entry)
+  - https://web.dev/custom-metrics/#navigation-timing-api
+  - https://web.dev/time-to-first-byte
 - `user-timing` ("measure" entry)
   - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
   - https://web.dev/custom-metrics/#user-timing-api
@@ -365,6 +371,8 @@ Constant map of public metric names to corresponding browser internal entry type
 - `longtask` ("longtask" entry)
   - https://developer.mozilla.org/en-US/docs/Web/API/Long_Tasks_API
   - https://web.dev/custom-metrics/#long-tasks-api
+
+## Browser support
 
 ## Development
 

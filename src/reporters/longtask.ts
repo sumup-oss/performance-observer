@@ -21,7 +21,7 @@ import createObserver from '../utils/create-observer';
 // used for "longtask" metrics
 // https://developer.mozilla.org/en-US/docs/Web/API/Long_Tasks_API
 // https://web.dev/custom-metrics/#long-tasks-api
-const longtaskHandler: IMetricReporter = (
+const longtaskReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -39,4 +39,4 @@ const longtaskHandler: IMetricReporter = (
   return observer;
 };
 
-export default longtaskHandler;
+export default longtaskReporter;

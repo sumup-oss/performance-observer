@@ -21,7 +21,7 @@ import createObserver from '../utils/create-observer';
 // used for custom "user-timing" metrics
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
 // https://web.dev/custom-metrics/#user-timing-api
-const measureHandler: IMetricReporter = (
+const measureReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -41,4 +41,4 @@ const measureHandler: IMetricReporter = (
   return observer;
 };
 
-export default measureHandler;
+export default measureReporter;

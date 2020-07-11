@@ -25,7 +25,7 @@ import getFirstTabHiddenTime from '../utils/get-first-tab-hidden-time';
 
 // used for custom "element-timing" metrics
 // https://web.dev/custom-metrics/#element-timing-api
-const elementHandler: IMetricReporter = (
+const elementReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -52,4 +52,4 @@ const elementHandler: IMetricReporter = (
   return observer;
 };
 
-export default elementHandler;
+export default elementReporter;

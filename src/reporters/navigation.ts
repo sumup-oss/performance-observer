@@ -23,8 +23,8 @@ import onAfterPageLoad from '../utils/on-after-page-load';
 // and more specific "time-to-first-byte" metric (a.k.a server response time)
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
 // https://web.dev/custom-metrics/#navigation-timing-api
-// https://web.dev/time-to-first-byte/
-const navigationHandler: IMetricReporter = (
+// https://web.dev/time-to-first-byte
+const navigationReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -59,4 +59,4 @@ const navigationHandler: IMetricReporter = (
   return observer;
 };
 
-export default navigationHandler;
+export default navigationReporter;

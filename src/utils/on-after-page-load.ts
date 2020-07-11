@@ -15,8 +15,8 @@
 
 import nextTick from './next-tick';
 
-// make that callback runs after `loadEventEnd` which means
-// that load of the current document is completed
+// make sure that callback runs after `loadEventEnd`
+// which means that load of the current document is completed
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/loadEventEnd
 export default function onAfterPageLoad(callback: () => void): void {
   if (document.readyState === 'complete') {

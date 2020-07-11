@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-// import nextTick from './next-tick';
-
 interface IVisibilityChangeEvent {
   timeStamp: number;
 }

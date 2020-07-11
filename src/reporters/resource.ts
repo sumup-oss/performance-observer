@@ -21,7 +21,7 @@ import createObserver from '../utils/create-observer';
 // used for custom "resource-timing" metric (requests to page resources like scripts, styles, etc.)
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
 // https://web.dev/custom-metrics/#resource-timing-api
-const resourceHandler: IMetricReporter = (
+const resourceReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -41,4 +41,4 @@ const resourceHandler: IMetricReporter = (
   return observer;
 };
 
-export default resourceHandler;
+export default resourceReporter;

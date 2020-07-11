@@ -84,10 +84,10 @@ export function disconnect(metricName: IMetricName): void {
   }
 }
 
-export function disconnectAll(): void {
-  const metricNames = Object.keys(registeredObservers);
+export function disconnectAll(metricNames?: IMetricName[]): void {
+  const targetMetricNames = metricNames || Object.keys(registeredObservers);
 
-  for (const metricName of metricNames as IMetricName[]) {
+  for (const metricName of targetMetricNames as IMetricName[]) {
     disconnect(metricName);
   }
 }

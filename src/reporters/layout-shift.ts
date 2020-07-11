@@ -22,7 +22,7 @@ import onBrowserTabHidden from '../utils/on-browser-tab-hidden';
 // used for "cumulative-layout-shift" metric
 // https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
 // https://web.dev/fid
-const layoutShiftHandler: IMetricReporter = (
+const layoutShiftReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -58,4 +58,4 @@ const layoutShiftHandler: IMetricReporter = (
   return observer;
 };
 
-export default layoutShiftHandler;
+export default layoutShiftReporter;

@@ -19,12 +19,13 @@ interface IFirstTabHiddenTime {
   timeStamp: number;
 }
 
-// since users can open pages in a background tab,
-// it's possible that some metrics (e.g all paint related)
+// since users can open pages in a background tabs
+// it's possible that some metrics (e.g all "paint" related ones)
 // will not happen until the user focuses the browser tab,
-// which can be much later than when they first loaded it,
-// thus we keep track of when the page was first hidden.
-// more - https://github.com/w3c/page-visibility/issues/29
+// which can happen much later than they first loaded it,
+// we need keep track of when the page was first hidden,
+// in order to not report paint metrics loaded in background,
+// more here - https://github.com/w3c/page-visibility/issues/29
 let firstTabHiddenTime: number;
 
 export default function getFirstTabHiddenTime(): IFirstTabHiddenTime {

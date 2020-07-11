@@ -3,7 +3,7 @@
 <!-- [![Version](https://img.shields.io/npm/v/@sumup/performance-observer)](https://www.npmjs.com/package/@sumup/performance-observer)
 [![Coverage](https://img.shields.io/codecov/c/github/sumup/performance-observer)](https://codecov.io/gh/sumup-oss/performance-observer) [![License](https://img.shields.io/github/license/sumup/performance-observer)](https://github.com/sumup-oss/performance-observer/blob/master/LICENSE) -->
 
-> Generic interface for subscribing and measuring performance metrics (includes [web-vitals](https://web.dev/vitals/) but also supports [custom metrics](https://web.dev/custom-metrics/)) based on events from [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
+> Generic interface for measuring performance metrics. It supports all [web-vitals](https://web.dev/vitals/), as well as [custom metrics](https://web.dev/custom-metrics/)), and under the hood is powered by native browser [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -41,7 +41,7 @@ yarn add @sumup/performance-observer
 
 #### First Paint
 
-Returns ["First Paint" (FP)](https://developer.mozilla.org/en-US/docs/Glossary/First_paint) value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in a browser navigation bar) 'til when _any_ render is detected in the browser. For example, painting background colour on a body element could be regarded as "first-paint" in a web page's load -
+["First Paint" (FP)](https://developer.mozilla.org/en-US/docs/Glossary/First_paint) returns value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in a browser navigation bar) 'til when _any_ render is detected in the browser. For example, painting background colour on a body element could be regarded as "first-paint" in a web page's load -
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -56,7 +56,7 @@ performanceObserver.observe('first-paint',
 
 #### First Contentful Paint
 
-Returns ["First Contentful Paint" (FCP)](https://web.dev/fcp/) value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in browser navigation bar) 'til when the content render is detected in the browser. This could be elements containing text, image elements or canvas elements (though contents of iframe elements are not included) -
+["First Contentful Paint" (FCP)](https://web.dev/fcp/) returns the value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in browser navigation bar) 'til when the content render is detected in the browser. This could be elements containing text, image elements or canvas elements (though contents of iframe elements are not included) -
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -84,7 +84,7 @@ performanceObserver.observe('largest-contentful-paint',
 
 #### First Input Delay
 
-Returns ["First Input Delay" (FID)](https://web.dev/fid/) value in milliseconds that represents the time from when user first interacts with your site (e.g. click on a link, tap on a button etc.) to the time when browser is actually able to respond to that interaction -
+["First Input Delay" (FID)](https://web.dev/fid/) returns the value in milliseconds that represents the time from when user first interacts with your site (e.g. clicks on a link, taps on a button etc.) to the time when browser is actually able to respond to that interaction -
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -97,7 +97,45 @@ performanceObserver.observe('first-input-delay',
 );
 ```
 
+#### Cumulative Layout Shift
+
+```js
+import performanceObserver from '@sumup/performance-observer';
+
+performanceObserver.observe('cumulative-layout-shift',
+  ({ name, value })) => {
+    console.log(`"${name}": ${value};`);
+    // e.g. "cumulative-layout-shift": 0.05;
+  }
+);
+```
+
+#### Time to First Byte
+
+```js
+import performanceObserver from '@sumup/performance-observer';
+
+performanceObserver.observe('time-to-first-byte',
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
+    // e.g. "time-to-first-byte": 120ms;
+  }
+);
+```
+
 #### User Timing
+
+[User Timing](https://web.dev/custom-metrics/#user-timing-api) allows to measure how much time in milliseconds the certain block of code took to execute. It is useful for optimising complex logic and calculations in the browser -
+
+```js
+// start recording the time immediately before running a task
+window.performance.mark('my-task:start');
+await runMyTask();
+
+// stop recording the time immediately after running a task
+window.performance.mark('my-task:end');
+window.performance.measure('my-task', 'my-task:start', 'my-task:end');
+```
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -110,17 +148,13 @@ performanceObserver.observe('user-timing',
 );
 ```
 
-```js
-// start recording the time immediately before running a task
-window.performance.mark('my-task:start');
-await runMyTask();
-
-// stop recording the time immediately after running a task
-window.performance.mark('my-task:end');
-window.performance.measure('my-task', 'my-task:start', 'my-task:end');
-```
-
 #### Element Timing
+
+[Element Timing](https://web.dev/custom-metrics/#element-timing-api) allows to measure the time in milliseconds that specific HTML element took to render on the screen. It can be useful for knowing when the largest image or text block was painted to the screen or if you want to measure the render time of some important element on the page (e.g. hero or header) -
+
+```html
+<img elementtiming="hero-image-paint" src="example.png" />
+```
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -133,11 +167,9 @@ performanceObserver.observe('element-timing',
 );
 ```
 
-```html
-<img elementtiming="hero-image-paint" src="example.png" />
-```
-
 #### Resource Timing
+
+["Resource Timing"](https://web.dev/custom-metrics/#resource-timing-api) allows to measure the time that particular third-party resources of a page (e.g. images, styles, scripts, etc.) took to load -
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -145,14 +177,16 @@ import performanceObserver from '@sumup/performance-observer';
 performanceObserver.observe('resource-timing',
   ({ name, meta, value })) => {
     console.log(`"${name}" (${meta.url}): ${value}ms;`);
-    // e.g. "resource-timing" (http://sumup.com/file.js): 248ms;
+    // e.g. "resource-timing" (http://sumup.com/favicon.ico): 20ms;
   }
 );
 ```
 
 #### Navigation Timing
 
-Returns ["Navigation Timing"](https://web.dev/custom-metrics/#navigation-timing-api) values in milliseconds that represent the time that user to took to navigate to the page with corresponding url. It can be also useful for understanding server response time (also known as "Time to First Byte") as well -
+["Navigation Timing"](https://web.dev/custom-metrics/#navigation-timing-api) returns value in milliseconds that represents the time that page took to load completely. However it can be also useful for understanding more information.
+
+Note that server response time, also known as "Time to First Byte", was moved to a separate metric.
 
 ```js
 import performanceObserver from '@sumup/performance-observer';

@@ -13,19 +13,32 @@
  * limitations under the License.
  */
 
-import { IPerfObserverMetric } from './types';
-import createPerformanceObserver from './performance-observer';
+import { IMetricName } from './types';
+
+import * as po from './performance-observer';
 
 describe('performance-observer module', () => {
   const mockFirstInputDelay = {
     entryType: 'first-input',
     name: 'mousedown',
-    duration: 0
+    processingStart: 10,
+    startTime: 5
   };
   const mockFirstContentfulPaint = {
     entryType: 'paint',
     name: 'first-contentful-paint',
     startTime: 1
+  };
+  const mockLargestContentfulPaint = {
+    entryType: 'largest-contentful-paint',
+    name: 'largest-contentful-paint',
+    startTime: 100
+  };
+  const mockCumulativeLayoutShift = {
+    entryType: 'layout-shift',
+    name: 'cumulative-layout-shift',
+    value: 0.01,
+    hadRecentInput: false
   };
   const mockElementTiming = {
     entryType: 'element',
@@ -50,194 +63,292 @@ describe('performance-observer module', () => {
   const mockPeformanceEntries = [
     mockFirstInputDelay,
     mockFirstContentfulPaint,
+    mockLargestContentfulPaint,
+    mockCumulativeLayoutShift,
     mockElementTiming,
     mockResourceTiming,
     mockCustomMetric,
     mockLongtask
   ];
 
-  const { PerformanceObserver } = window as any;
-
   function MockPerformanceObserver(cb: any) {
-    const observe = () => {
-      cb({ getEntries: () => mockPeformanceEntries });
+    let targetType = '';
+    const listEntries = () =>
+      mockPeformanceEntries.filter(({ entryType }) => entryType === targetType);
+
+    const observe = ({ type }: { type: string }) => {
+      targetType = type;
+
+      cb({ getEntries: () => listEntries() });
 
       return {};
     };
     const disconnect = jest.fn();
+    const takeRecords = () => listEntries();
 
     return {
       observe,
-      disconnect
+      disconnect,
+      takeRecords
     };
   }
+  MockPerformanceObserver.supportedEntryTypes = [
+    'first-input',
+    'paint',
+    'largest-contentful-paint',
+    'layout-shift',
+    'resource',
+    'navigation',
+    'element',
+    'measure',
+    'longtask'
+  ];
+
+  const mockDateTimestamp = 1594468364387;
+  Date.now = jest.fn(() => mockDateTimestamp);
+
+  const { PerformanceObserver } = window as any;
+  const { addEventListener } = document as any;
+
+  let mockDocumentEvents: any = {};
 
   beforeEach(() => {
+    jest.useFakeTimers();
+
     (window as any).PerformanceObserver = MockPerformanceObserver;
+
+    document.addEventListener = jest.fn((event, cb) => {
+      mockDocumentEvents[event] = cb;
+    });
   });
 
   afterEach(() => {
+    jest.useRealTimers();
+    po.disconnectAll();
+
     (window as any).PerformanceObserver = PerformanceObserver;
+    (document as any).addEventListener = addEventListener;
+    mockDocumentEvents = {};
   });
 
   describe('observe()', () => {
     it('should track "first-input-delay"', () => {
       const metricName = 'first-input-delay';
+      const value =
+        mockFirstInputDelay.processingStart - mockFirstInputDelay.startTime;
       const done = jest.fn();
-      const trackingData = {
+      const metric = {
         name: metricName,
-        duration: mockFirstInputDelay.duration
+        value,
+        meta: {
+          entries: [mockFirstInputDelay],
+          entryType: mockFirstInputDelay.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
       };
 
-      const performanceObserver = createPerformanceObserver();
+      po.observe(metricName, done);
 
-      performanceObserver.observe(metricName, done);
-
-      expect(done).toHaveBeenNthCalledWith(
-        1,
-        trackingData,
-        mockFirstInputDelay
-      );
+      expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
     it('should track "first-contentful-paint"', () => {
       const metricName = 'first-contentful-paint';
       const done = jest.fn();
-      const trackingData = {
+      const metric = {
         name: metricName,
-        duration: mockFirstContentfulPaint.startTime
+        value: mockFirstContentfulPaint.startTime,
+        meta: {
+          entries: [mockFirstContentfulPaint],
+          entryType: mockFirstContentfulPaint.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
       };
 
-      const performanceObserver = createPerformanceObserver();
+      po.observe(metricName, done);
 
-      performanceObserver.observe(metricName, done);
+      expect(done).toHaveBeenNthCalledWith(1, metric);
+    });
 
-      expect(done).toHaveBeenNthCalledWith(
-        1,
-        trackingData,
-        mockFirstContentfulPaint
-      );
+    it('should track "largest-contentful-paint"', () => {
+      const metricName = 'largest-contentful-paint';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockLargestContentfulPaint.startTime,
+        meta: {
+          entries: [mockLargestContentfulPaint, mockLargestContentfulPaint],
+          entryType: mockLargestContentfulPaint.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done);
+
+      mockDocumentEvents.keydown();
+      jest.runAllTimers();
+
+      expect(done).toHaveBeenNthCalledWith(1, metric);
+    });
+
+    it('should track "cumulative-layout-shift"', () => {
+      const updateDocumentVisibility = (visibility: string): void => {
+        Object.defineProperty(document, 'visibilityState', {
+          configurable: true,
+          get() {
+            return visibility;
+          }
+        });
+      };
+      const metricName = 'cumulative-layout-shift';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockCumulativeLayoutShift.value * 2,
+        meta: {
+          entries: [mockCumulativeLayoutShift, mockCumulativeLayoutShift],
+          entryType: mockCumulativeLayoutShift.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done);
+
+      updateDocumentVisibility('hidden');
+      mockDocumentEvents.visibilitychange();
+      jest.runAllTimers();
+
+      expect(done).toHaveBeenNthCalledWith(1, metric);
+      updateDocumentVisibility('visible');
     });
 
     it('should track element timing', () => {
       const metricName = 'element-timing';
       const done = jest.fn();
-      const trackingData = {
+      const metric = {
         name: mockElementTiming.identifier,
-        duration: mockElementTiming.startTime
+        value: mockElementTiming.startTime,
+        meta: {
+          entries: [mockElementTiming],
+          entryType: mockElementTiming.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
       };
 
-      const performanceObserver = createPerformanceObserver();
+      po.observe(metricName, done);
 
-      performanceObserver.observe(metricName, done);
-
-      expect(done).toHaveBeenNthCalledWith(1, trackingData, mockElementTiming);
+      expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
     it('should track resource timing', () => {
       const metricName = 'resource-timing';
       const done = jest.fn();
-      const trackingData = {
+      const metric = {
         name: metricName,
-        url: mockResourceTiming.name,
-        duration: mockResourceTiming.duration
+        value: mockResourceTiming.duration,
+        meta: {
+          url: mockResourceTiming.name,
+          entries: [mockResourceTiming],
+          entryType: mockResourceTiming.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
       };
 
-      const performanceObserver = createPerformanceObserver();
+      po.observe(metricName, done);
 
-      performanceObserver.observe(metricName, done);
-
-      expect(done).toHaveBeenNthCalledWith(1, trackingData, mockResourceTiming);
+      expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
     it('should track custom user metrics', () => {
       const metricName = 'user-timing';
       const done = jest.fn();
-      const trackingData = {
+      const metric = {
         name: mockCustomMetric.name,
-        duration: mockCustomMetric.duration
+        value: mockCustomMetric.duration,
+        meta: {
+          entries: [mockCustomMetric],
+          entryType: mockCustomMetric.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
       };
 
-      const performanceObserver = createPerformanceObserver();
+      po.observe(metricName, done);
 
-      performanceObserver.observe(metricName, done);
-
-      expect(done).toHaveBeenNthCalledWith(1, trackingData, mockCustomMetric);
+      expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
     it('should track longtask metrics', () => {
       const metricName = 'longtask';
       const done = jest.fn();
-      const trackingData = {
+      const metric = {
         name: metricName,
-        duration: mockLongtask.duration
+        value: mockLongtask.duration,
+        meta: {
+          entries: [mockLongtask],
+          entryType: mockLongtask.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
       };
 
-      const performanceObserver = createPerformanceObserver();
+      po.observe(metricName, done);
 
-      performanceObserver.observe(metricName, done);
-
-      expect(done).toHaveBeenNthCalledWith(1, trackingData, mockLongtask);
+      expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
     it('should not track unexisting metrics', () => {
       const metricName = 'test-timing';
       const done = jest.fn();
-      const performanceObserver = createPerformanceObserver();
 
-      const observer = performanceObserver.observe(
-        metricName as IPerfObserverMetric,
-        done
-      );
+      po.observe(metricName as IMetricName, done);
 
-      expect(observer).toBeUndefined();
       expect(done).toHaveBeenCalledTimes(0);
     });
   });
 
   describe('observeAll()', () => {
-    it('should track only default metrics if not overwritten', () => {
-      const done = jest.fn();
-      const performanceObserver = createPerformanceObserver();
-
-      performanceObserver.observeAll(done);
-
-      expect(done).toHaveBeenCalledTimes(2);
-    });
-
     it('should track specified metrics if they are passed', () => {
       const done = jest.fn();
-      const performanceObserver = createPerformanceObserver(['user-timing']);
 
-      performanceObserver.observeAll(done);
+      po.observeAll(['user-timing', 'first-contentful-paint'], done);
 
-      expect(done).toHaveBeenCalledTimes(1);
+      expect(done).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('diconnectAll()', () => {
     it('should call disconnect on all specified metrics', () => {
       const done = jest.fn();
-      const metrics = ['user-timing', 'first-contentful-paint'];
-      const { metricToEntryTypeMap } = createPerformanceObserver;
-      const performanceObserver = createPerformanceObserver(
-        metrics as IPerfObserverMetric[]
-      );
-      const performanceObserverByType = performanceObserver.observeAll(done);
+      const metrics: IMetricName[] = ['user-timing', 'first-contentful-paint'];
 
+      po.observeAll(metrics, done);
+
+      expect(po.registeredObservers).toMatchInlineSnapshot(`
+        Object {
+          "first-contentful-paint": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+          "user-timing": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+        }
+      `);
       expect(done).toHaveBeenCalledTimes(2);
 
-      performanceObserver.disconnectAll();
+      po.disconnectAll();
 
-      metrics.forEach(metricName => {
-        const entryType =
-          metricToEntryTypeMap[metricName as IPerfObserverMetric];
-        const observer = performanceObserverByType[
-          entryType
-        ] as PerformanceObserver;
-
-        expect(observer.disconnect).toHaveBeenCalledTimes(1);
-      });
+      expect(po.registeredObservers).toMatchInlineSnapshot(`Object {}`);
     });
   });
 });

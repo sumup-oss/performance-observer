@@ -3,143 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <title>Performance Observer Example</title>
+    <link
+      rel="shortcut icon"
+      href="https://sumup.com/static/favicon.ico"
+      type="image/x-icon"
+    />
 
     <!-- PERFORMANCE OBSERVER CODE -->
     <script>
-      !(function(e, t) {
-        'object' == typeof exports && 'undefined' != typeof module
-          ? (module.exports = t())
-          : 'function' == typeof define && define.amd
-          ? define(t)
-          : ((e = e || self).createPerformanceObserver = t());
-      })(this, function() {
-        'use strict';
-        function e(e) {
-          var t = 'function' == typeof Symbol && e[Symbol.iterator],
-            r = 0;
-          return t
-            ? t.call(e)
-            : {
-                next: function() {
-                  return (
-                    e && r >= e.length && (e = void 0),
-                    { value: e && e[r++], done: !e }
-                  );
-                }
-              };
-        }
-        var t = ['first-paint', 'first-contentful-paint', 'first-input-delay'],
-          r = {
-            'first-input-delay': 'first-input',
-            'first-paint': 'paint',
-            'first-contentful-paint': 'paint',
-            'element-timing': 'element',
-            'navigation-timing': 'navigation',
-            'resource-timing': 'resource',
-            'user-timing': 'measure'
-          },
-          n = {
-            'first-input-delay': 'duration',
-            'first-paint': 'startTime',
-            'first-contentful-paint': 'startTime',
-            'element-timing': 'startTime',
-            'navigation-timing': 'duration',
-            'resource-timing': 'duration',
-            'user-timing': 'duration'
-          };
-        function i(i) {
-          void 0 === i && (i = t);
-          var a = {};
-          function o(e, t, r, n) {
-            var i = { name: e, duration: n[r] };
-            return (
-              'element' === t && n.identifier && (i.name = n.identifier),
-              ('paint' !== t && 'measure' !== t) || (i.name = n.name),
-              ('resource' !== t && 'navigation' !== t) || (i.url = n.name),
-              i
-            );
-          }
-          function f(t, i) {
-            var f = r[t],
-              u = n[t];
-            if (f && u && !a[f]) {
-              var l = new PerformanceObserver(function(r) {
-                var n,
-                  a,
-                  l = r.getEntries();
-                try {
-                  for (var c = e(l), s = c.next(); !s.done; s = c.next()) {
-                    var m = s.value;
-                    if (m.entryType === f) {
-                      var d = o(t, f, u, m);
-                      i(d, m);
-                    }
-                  }
-                } catch (e) {
-                  n = { error: e };
-                } finally {
-                  try {
-                    s && !s.done && (a = c.return) && a.call(c);
-                  } finally {
-                    if (n) throw n.error;
-                  }
-                }
-              });
-              try {
-                l.observe({ type: f, buffered: !0 });
-              } catch (e) {}
-              return (a[f] = l), l;
-            }
-          }
-          return {
-            observe: f,
-            observeAll: function(t) {
-              var r, n;
-              try {
-                for (var o = e(i), u = o.next(); !u.done; u = o.next()) {
-                  f(u.value, t);
-                }
-              } catch (e) {
-                r = { error: e };
-              } finally {
-                try {
-                  u && !u.done && (n = o.return) && n.call(o);
-                } finally {
-                  if (r) throw r.error;
-                }
-              }
-              return a;
-            },
-            disconnectAll: function() {
-              var t,
-                r,
-                n = Object.keys(a);
-              try {
-                for (var i = e(n), o = i.next(); !o.done; o = i.next()) {
-                  var f = o.value,
-                    u = a[f];
-                  u && u.disconnect();
-                }
-              } catch (e) {
-                t = { error: e };
-              } finally {
-                try {
-                  o && !o.done && (r = i.return) && r.call(i);
-                } finally {
-                  if (t) throw t.error;
-                }
-              }
-            }
-          };
-        }
-        return (i.metricToEntryTypeMap = r), (i.metricToEntryMeasureMap = n), i;
-      });
+      !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t=t||self).PO={})}(this,(function(t){"use strict";function e(t,e){(null==e||e>t.length)&&(e=t.length);for(var n=0,r=new Array(e);n<e;n++)r[n]=t[n];return r}function n(t,n){var r;if("undefined"==typeof Symbol||null==t[Symbol.iterator]){if(Array.isArray(t)||(r=function(t,n){if(t){if("string"==typeof t)return e(t,n);var r=Object.prototype.toString.call(t).slice(8,-1);return"Object"===r&&t.constructor&&(r=t.constructor.name),"Map"===r||"Set"===r?Array.from(t):"Arguments"===r||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(r)?e(t,n):void 0}}(t))||n&&t&&"number"==typeof t.length){r&&(t=r);var a=0,i=function(){};return{s:i,n:function(){return a>=t.length?{done:!0}:{done:!1,value:t[a++]}},e:function(t){throw t},f:i}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var o,u=!0,f=!1;return{s:function(){r=t[Symbol.iterator]()},n:function(){var t=r.next();return u=t.done,t},e:function(t){f=!0,o=t},f:function(){try{u||null==r.return||r.return()}finally{if(f)throw o}}}}function r(t,e){return{name:t,value:0,meta:{entryType:e,entries:[],createdAt:Date.now()}}}function a(t,e){try{if(PerformanceObserver.supportedEntryTypes.indexOf(t)<0)return;var r=new PerformanceObserver((function(t){var r,a=n(t.getEntries());try{for(a.s();!(r=a.n()).done;){var i=r.value;e(i)}}catch(t){a.e(t)}finally{a.f()}}));return r.observe({type:t,buffered:!0}),r}catch(t){}}function i(t){document.addEventListener("visibilitychange",(function(e){"hidden"===document.visibilityState&&t(e)}),{capture:!0,once:!0})}var o;function u(){return void 0===o&&(o="hidden"===document.visibilityState?0:1/0,i((function(t){o=t.timeStamp}))),{get timeStamp(){return o}}}var f="function"==typeof queueMicrotask?function(t){return queueMicrotask(t)}:function(t){return window.setTimeout(t,0)},c=!1;var s={paint:function(t,e,n){var i=u();return a(t,(function(a){if(e===a.name){var o=r(e,t),u=a.startTime;u<i.timeStamp&&(o.value=u,o.meta.updatedAt=Date.now(),o.meta.entries.push(a),n(o))}}))},"largest-contentful-paint":function(t,e,o){var s=r(e,t),d=u(),l=function(t){var e=t.startTime;e<d.timeStamp&&(s.value=e,s.meta.updatedAt=Date.now(),s.meta.entries.push(t))},m=a(t,l);if(m){var v=!1,p=function(){if(!v){var t,e=n(m.takeRecords());try{for(e.s();!(t=e.n()).done;){var r=t.value;l(r)}}catch(t){e.e(t)}finally{e.f()}s.meta.updatedAt&&(o(s),v=!0)}};i(p),function(t){for(var e=function(){c||(f(t),c=!0)},n={once:!0,passive:!0,capture:!0},r=0,a=["scroll","keydown","pointerdown"];r<a.length;r++){var i=a[r];document.addEventListener(i,e,n)}}(p)}return m},"first-input":function(t,e,n){var i=r(e,t),o=u();return a(t,(function(t){t.startTime<o.timeStamp&&(i.value=t.processingStart-t.startTime,i.meta.updatedAt=Date.now(),i.meta.entries.push(t),n(i))}))},"layout-shift":function(t,e,o){var u=r(e,t),f=function(t){t.hadRecentInput||(u.value+=t.value,u.meta.updatedAt=Date.now(),u.meta.entries.push(t))},c=a(t,f);if(c){i((function(){var t,e=n(c.takeRecords());try{for(e.s();!(t=e.n()).done;){var r=t.value;f(r)}}catch(t){e.e(t)}finally{e.f()}u.meta.updatedAt&&o(u)}))}return c},element:function(t,e,n){var i=u();return a(t,(function(a){var o=r(e,t),u=a.startTime;u<i.timeStamp&&(o.name=a.identifier,o.value=u,o.meta.updatedAt=Date.now(),o.meta.entries.push(a),n(o))}))},measure:function(t,e,n){return a(t,(function(a){var i=r(e,t);i.name=a.name,i.value=a.duration,i.meta.updatedAt=Date.now(),i.meta.entries.push(a),n(i)}))},navigation:function(t,e,i){var o,u="time-to-first-byte"===e,c=r(e,t),s=function(t){c.value=u?t.responseStart:t.duration,c.meta.url=t.name,c.meta.updatedAt=Date.now(),c.meta.entries=[t]},d=a(t,s);if(d){o=function(){var t,e=n(d.takeRecords());try{for(e.s();!(t=e.n()).done;){var r=t.value;s(r)}}catch(t){e.e(t)}finally{e.f()}c.meta.updatedAt&&i(c)},"complete"===document.readyState?f(o):window.addEventListener("pageshow",(function(){return f(o)}))}return d},resource:function(t,e,n){return a(t,(function(a){var i=r(e,t);i.value=a.duration,i.meta.url=a.name,i.meta.updatedAt=Date.now(),i.meta.entries.push(a),n(i)}))},longtask:function(t,e,n){var i=r(e,t);return a(t,(function(t){i.value=t.duration,i.meta.updatedAt=Date.now(),i.meta.entries.push(t),n(i)}))}};var d={"first-input-delay":"first-input","first-paint":"paint","first-contentful-paint":"paint","largest-contentful-paint":"largest-contentful-paint","cumulative-layout-shift":"layout-shift","time-to-first-byte":"navigation","element-timing":"element","navigation-timing":"navigation","resource-timing":"resource","user-timing":"measure",longtask:"longtask"},l={},m=[];function v(t,e){var n=d[t];if(n&&!l[t]){var r=function(t){return s[t]}(n)(n,t,(function(t){m.push(t),e(t)}));return l[t]=r,r}}function p(t){var e=l[t];e&&(e.disconnect(),delete l[t])}t.METRIC_NAME_TO_ENTRY_TYPE=d,t.disconnect=p,t.disconnectAll=function(){for(var t=0,e=Object.keys(l);t<e.length;t++){p(e[t])}},t.metricHistory=m,t.observe=v,t.observeAll=function(t,e){var r,a=n(t);try{for(a.s();!(r=a.n()).done;){v(r.value,e)}}catch(t){a.e(t)}finally{a.f()}},t.registeredObservers=l,Object.defineProperty(t,"__esModule",{value:!0})}));
     </script>
 
     <!-- TEST CODE -->
     <script>
       (function() {
         initPerformanceObserver();
+        initCustomPageLoadCheck();
         initDynamicText();
         initLongRunningTasks();
 
@@ -148,28 +27,38 @@
             'first-paint',
             'first-contentful-paint',
             'first-input-delay',
+            'largest-contentful-paint',
+            'cumulative-layout-shift',
+            'time-to-first-byte',
+            'user-timing',
             'element-timing',
             'resource-timing',
             'navigation-timing',
-            'user-timing'
+            'longtask'
           ];
-          var performanceObserver = window.createPerformanceObserver(
-            targetMetrics
-          );
 
-          performanceObserver.observeAll(function(trackingData, rawEntry) {
-            console.group();
-            console.log('tracking data', trackingData);
-            console.log('raw entry', rawEntry);
-            console.groupEnd();
+          PO.observeAll(targetMetrics, function(metric) {
+            console.log('metric data', metric);
           });
+        }
+
+        function initCustomPageLoadCheck() {
+          window.performance.mark('custom-page-load-check:start');
+          window.addEventListener('load', function() {
+            window.performance.mark('custom-page-load-check:end');
+            window.performance.measure(
+              'custom-page-load-check',
+              'custom-page-load-check:start',
+              'custom-page-load-check:end'
+            );
+          })
         }
 
         function initDynamicText() {
           window.performance.mark('create-dynamic-text:start');
           setTimeout(function() {
-            document.getElementById('text').innerText =
-              'Lorem ipsum dolor sit amet...';
+            document.getElementById('text').innerHTML =
+              'Lorem ipsum dolor sit amet (<a href="/">link</a>)...';
             window.performance.mark('create-dynamic-text:end');
             window.performance.measure(
               'create-dynamic-text',

@@ -14,27 +14,25 @@
  */
 
 import {
-  IPerformanceEntry,
-  IPerfObserver,
-  IPerfObservers,
-  IPerfObserverType,
-  IPerfObserverMetric,
-  IPerfObserverMeasure,
-  IPerfObserverMetricMap,
-  IPerfObserverMeasureMap,
-  IPerfObserverTrackingData
+  IPerformanceObservers,
+  IMetricNameToEntryTypeMap,
+  IMetric,
+  IMetricName,
+  IMetricCallback,
+  IMetricHistory,
+  IEntryType
 } from './types';
 
-const DEFAULT_METRICS: IPerfObserverMetric[] = [
-  'first-paint',
-  'first-contentful-paint',
-  'first-input-delay'
-];
+import getMetricReporter from './reporters';
 
-const metricToEntryTypeMap: IPerfObserverMetricMap = {
+// advertised name vs. api name
+export const METRIC_NAME_TO_ENTRY_TYPE: IMetricNameToEntryTypeMap = {
   'first-input-delay': 'first-input',
   'first-paint': 'paint',
   'first-contentful-paint': 'paint',
+  'largest-contentful-paint': 'largest-contentful-paint',
+  'cumulative-layout-shift': 'layout-shift',
+  'time-to-first-byte': 'navigation',
   'element-timing': 'element',
   'navigation-timing': 'navigation',
   'resource-timing': 'resource',
@@ -42,125 +40,54 @@ const metricToEntryTypeMap: IPerfObserverMetricMap = {
   longtask: 'longtask'
 };
 
-const metricToEntryMeasureMap: IPerfObserverMeasureMap = {
-  'first-input-delay': 'duration',
-  'first-paint': 'startTime',
-  'first-contentful-paint': 'startTime',
-  'element-timing': 'startTime',
-  'navigation-timing': 'duration',
-  'resource-timing': 'duration',
-  'user-timing': 'duration',
-  longtask: 'duration'
-};
+export const registeredObservers: IPerformanceObservers = {};
 
-function createPerformanceObserver(
-  targetMetrics = DEFAULT_METRICS
-): IPerfObserver {
-  const perfObservers: IPerfObservers = {};
+export const metricHistory: IMetricHistory = [];
 
-  function getTrackingData(
-    metricName: IPerfObserverMetric,
-    entryType: IPerfObserverType,
-    entryMeasure: IPerfObserverMeasure,
-    entry: IPerformanceEntry
-  ): IPerfObserverTrackingData {
-    const trackingData: IPerfObserverTrackingData = {
-      name: metricName,
-      duration: entry[entryMeasure]
-    };
+export function observe(
+  metricName: IMetricName,
+  callback: IMetricCallback
+): PerformanceObserver | undefined {
+  const entryType: IEntryType = METRIC_NAME_TO_ENTRY_TYPE[metricName];
 
-    if (entryType === 'element' && entry.identifier) {
-      trackingData.name = entry.identifier;
-    }
-
-    if (entryType === 'paint' || entryType === 'measure') {
-      trackingData.name = entry.name;
-    }
-
-    if (entryType === 'resource' || entryType === 'navigation') {
-      trackingData.url = entry.name;
-    }
-
-    return trackingData;
+  if (!entryType || registeredObservers[metricName]) {
+    return;
   }
 
-  function observe(
-    metricName: IPerfObserverMetric,
-    done: (
-      trackingData: IPerfObserverTrackingData,
-      entry: IPerformanceEntry
-    ) => void
-  ): PerformanceObserver | undefined {
-    const entryType: IPerfObserverType = metricToEntryTypeMap[metricName];
-    const entryMeasure = metricToEntryMeasureMap[metricName];
-
-    if (!entryType || !entryMeasure || perfObservers[entryType]) {
-      return;
-    }
-
-    const isBuffered = entryType !== 'longtask';
-    const observer = new PerformanceObserver(entryList => {
-      const entries = entryList.getEntries();
-
-      for (const entry of entries as IPerformanceEntry[]) {
-        if (entry.entryType === entryType) {
-          const trackingData = getTrackingData(
-            metricName,
-            entryType,
-            entryMeasure,
-            entry
-          );
-
-          done(trackingData, entry);
-        }
-      }
-    });
-
-    try {
-      observer.observe({
-        type: entryType,
-        buffered: isBuffered
-      });
-    } catch (e) {}
-
-    perfObservers[entryType] = observer;
-
-    return observer;
-  }
-
-  function observeAll(
-    done: (
-      trackingData: IPerfObserverTrackingData,
-      entry: IPerformanceEntry
-    ) => void
-  ): IPerfObservers {
-    for (const metricName of targetMetrics as IPerfObserverMetric[]) {
-      observe(metricName, done);
-    }
-
-    return perfObservers;
-  }
-
-  function disconnectAll(): void {
-    const entryTypes = Object.keys(perfObservers);
-
-    for (const entryType of entryTypes as IPerfObserverType[]) {
-      const observer = perfObservers[entryType];
-
-      if (observer) {
-        observer.disconnect();
-      }
-    }
-  }
-
-  return {
-    observe,
-    observeAll,
-    disconnectAll
+  const metricReporter = getMetricReporter(entryType);
+  const onMetric = (metric: IMetric): void => {
+    metricHistory.push(metric);
+    callback(metric);
   };
+  const observerInstance = metricReporter(entryType, metricName, onMetric);
+
+  registeredObservers[metricName] = observerInstance;
+
+  return observerInstance;
 }
 
-createPerformanceObserver.metricToEntryTypeMap = metricToEntryTypeMap;
-createPerformanceObserver.metricToEntryMeasureMap = metricToEntryMeasureMap;
+export function observeAll(
+  metricNames: IMetricName[],
+  callback: IMetricCallback
+): void {
+  for (const metricName of metricNames) {
+    observe(metricName, callback);
+  }
+}
 
-export default createPerformanceObserver;
+export function disconnect(metricName: IMetricName): void {
+  const observer = registeredObservers[metricName];
+
+  if (observer) {
+    observer.disconnect();
+    delete registeredObservers[metricName];
+  }
+}
+
+export function disconnectAll(): void {
+  const metricNames = Object.keys(registeredObservers);
+
+  for (const metricName of metricNames as IMetricName[]) {
+    disconnect(metricName);
+  }
+}

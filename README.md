@@ -3,18 +3,19 @@
 <!-- [![Version](https://img.shields.io/npm/v/@sumup/performance-observer)](https://www.npmjs.com/package/@sumup/performance-observer)
 [![Coverage](https://img.shields.io/codecov/c/github/sumup/performance-observer)](https://codecov.io/gh/sumup-oss/performance-observer) [![License](https://img.shields.io/github/license/sumup/performance-observer)](https://github.com/sumup-oss/performance-observer/blob/master/LICENSE) -->
 
-> Generic interface for subscribing to measurement events from [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
+> Generic interface for subscribing and measuring performance metrics (includes [web-vitals](https://web.dev/vitals/) but also supports [custom metrics](https://web.dev/custom-metrics/)) based on events from [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Subscribe to individual events](#subscribe-to-individual-events)
-  - [Subscribe to all events](#subscribe-to-all-events-in-one-batch)
-  - [Accessing raw PerformanceEntry](#accessing-raw-performanceentry)
-  - [Unsubscribing observers](#unsubscribing-observers)
+  - [Subscribe to individual metrics](#subscribe-to-individual-metrics)
+  - [Subscribe to batch of metrics](#subscribe-to-several-metrics-in-one-batch)
+  - [Unsubscribe from metrics](#unsubscribe-from-metric-updates)
 - [API](#api)
-- [List of supported events](#supported-events)
+  - [Types](#types)
+  - [Methods](#types)
+- [List of supported metrics](#supported-metrics)
 - [Code of conduct](#code-of-conduct)
   - [Maintainers](#maintainers)
 - [Contributing](#contributing)
@@ -34,18 +35,18 @@ yarn add @sumup/performance-observer
 
 ## Usage
 
-### Subscribe to individual events
+### Subscribe to individual metrics
 
 #### First Paint
 
-```js
-import createPerformanceObserver from '@sumup/performance-observer';
+Returns ["First Paint" (FP)](https://developer.mozilla.org/en-US/docs/Glossary/First_paint) value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in a browser navigation bar) 'til when _any_ render is detected in the browser. For example, painting background colour on a body element could be regarded as "first-paint" in a web page's load -
 
-const performanceObserver = createPerformanceObserver();
+```js
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('first-paint',
-  ({ name, duration })) => {
-    console.log(`"${name}": ${duration}ms;`);
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
     // e.g. "first-paint": 1040ms;
   }
 );
@@ -53,29 +54,42 @@ performanceObserver.observe('first-paint',
 
 #### First Contentful Paint
 
-```js
-import createPerformanceObserver from '@sumup/performance-observer';
+Returns ["First Contentful Paint" (FCP)](https://web.dev/fcp/) value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in browser navigation bar) 'til when the content render is detected in the browser. This could be elements containing text, image elements or canvas elements (though contents of iframe elements are not included) -
 
-const performanceObserver = createPerformanceObserver();
+```js
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('first-contentful-paint',
-  ({ name, duration })) => {
-    console.log(`"${name}": ${duration}ms;`);
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
     // e.g. "first-contentful-paint": 1041ms;
+  }
+);
+```
+
+#### Largest Contentful Paint
+
+```js
+import performanceObserver from '@sumup/performance-observer';
+
+performanceObserver.observe('largest-contentful-paint',
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
+    // e.g. "largest-contentful-paint": 3022ms;
   }
 );
 ```
 
 #### First Input Delay
 
-```js
-import createPerformanceObserver from '@sumup/performance-observer';
+Returns ["First Input Delay" (FID)](https://web.dev/fid/) value in milliseconds that represents the time from when user first interacts with your site (e.g. click on a link, tap on a button etc.) to the time when browser is actually able to respond to that interaction -
 
-const performanceObserver = createPerformanceObserver();
+```js
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('first-input-delay',
-  ({ name, duration })) => {
-    console.log(`"${name}": ${duration}ms;`);
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
     // e.g. "first-input-delay": 20ms;
   }
 );
@@ -84,40 +98,34 @@ performanceObserver.observe('first-input-delay',
 #### User Timing
 
 ```js
-import createPerformanceObserver from '@sumup/performance-observer';
-
-const performanceObserver = createPerformanceObserver();
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('user-timing',
-  ({ name, duration })) => {
-    console.log(`"${name}": ${duration}ms;`);
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
     // e.g. "my-task": 3022ms;
   }
 );
+```
 
+```js
 // start recording the time immediately before running a task
 window.performance.mark('my-task:start');
 await runMyTask();
 
 // stop recording the time immediately after running a task
 window.performance.mark('my-task:end');
-window.performance.measure(
-  'my-task',
-  'my-task:start',
-  'my-task:end'
-);
+window.performance.measure('my-task', 'my-task:start', 'my-task:end');
 ```
 
 #### Element Timing
 
 ```js
-import createPerformanceObserver from '@sumup/performance-observer';
-
-const performanceObserver = createPerformanceObserver();
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('element-timing',
-  ({ name, duration })) => {
-    console.log(`"${name}": ${duration}ms;`);
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
     // e.g. "hero-image-paint": 120ms;
   }
 );
@@ -130,13 +138,11 @@ performanceObserver.observe('element-timing',
 #### Resource Timing
 
 ```js
-import createPerformanceObserver from '@sumup/performance-observer';
-
-const performanceObserver = createPerformanceObserver();
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('resource-timing',
-  ({ name, url, duration })) => {
-    console.log(`"${name}" (${url}): ${duration}ms;`);
+  ({ name, meta, value })) => {
+    console.log(`"${name}" (${meta.url}): ${value}ms;`);
     // e.g. "resource-timing" (http://sumup.com/file.js): 248ms;
   }
 );
@@ -144,14 +150,14 @@ performanceObserver.observe('resource-timing',
 
 #### Navigation Timing
 
-```js
-import createPerformanceObserver from '@sumup/performance-observer';
+Returns ["Navigation Timing"](https://web.dev/custom-metrics/#navigation-timing-api) values in milliseconds that represent the time that user to took to navigate to the page with corresponding url. It can be also useful for understanding server response time (also known as "Time to First Byte") as well -
 
-const performanceObserver = createPerformanceObserver();
+```js
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('navigation-timing',
-  ({ name, url, duration })) => {
-    console.log(`"${name}" (${url}): ${duration}ms;`);
+  ({ name, meta, value })) => {
+    console.log(`"${name}" (${meta.url}): ${value}ms;`);
     // e.g. "navigation-timing" (http://sumup.com/products): 1352ms;
   }
 );
@@ -162,71 +168,173 @@ performanceObserver.observe('navigation-timing',
 > ⚠️ Important: you can track longtasks only by creating the observer in the `<head>` of your pages, before loading any other scripts. It's needed because `buffered` flag is not currently supported for longtasks in any browser.
 
 ```js
-import createPerformanceObserver from '@sumup/performance-observer';
-
-const performanceObserver = createPerformanceObserver();
+import performanceObserver from '@sumup/performance-observer';
 
 performanceObserver.observe('longtask',
-  ({ name, url })) => {
-    console.log(`"${name}": ${duration}ms;`);
+  ({ name, value })) => {
+    console.log(`"${name}": ${value}ms;`);
     // e.g. "longtask": 51ms;
   }
 );
 ```
 
-### Subscribe to all events in one batch
-
-#### Custom set of events
+### Subscribe to several metrics in one batch
 
 ```js
-import createPerformanceObserver from '@sumup/performance-observer';
+import performanceObserver from '@sumup/performance-observer';
 
-const performanceObserver = createPerformanceObserver([
-  'first-contentful-paint',
-  'resource-timing'
-]);
-
-performanceObserver.observeAll(({ name, url, duration }) => {
-  if (url) {
-    console.log(`"${name}" (${url}): ${duration}ms;`);
-  } else {
-    console.log(`"${name}": ${duration}ms;`);
+performanceObserver.observeAll(
+  ['first-contentful-paint', 'resource-timing'],
+  ({ name, meta, value }) => {
+    if (meta.url) {
+      console.log(`"${name}" (${meta.url}): ${value}ms;`);
+    } else {
+      console.log(`"${name}": ${value}ms;`);
+    }
+    // handler will be called 2 times with such outputs, e.g:
+    // "first-contentful-paint": 1041ms;
+    // "resource-timing" (http://sumup.com/image.png): 1272ms;
   }
-  // handler will be called 2 times with such outputs, e.g:
-  // "first-contentful-paint": 1041ms;
-  // "resource-timing" (http://sumup.com/image.png): 1272ms;
-});
+);
 ```
 
-#### Default set of events (`first-paint`, `first-contentful-paint`, `first-input-delay`):
+### Unsubscribe from metric updates
 
 ```js
-import createPerformanceObserver from '@sumup/performance-observer';
+import performanceObserver from '@sumup/performance-observer';
 
-const performanceObserver = createPerformanceObserver();
+const metricValues = {}
+performanceObserver.observeAll(
+  ['first-contentful-paint', 'first-input-delay'],
+  ({ name, value }) => {
+    metricValues[name] = value;
 
-performanceObserver.observeAll(({ name, url, duration }) => {
-  console.log(`"${name}": ${duration}ms;`);
-  // handler will be called 3 times with such outputs, e.g:
-  // "first-paint": 1041ms
-  // "first-contentful-paint": 1042ms
-  // "first-input-delay": 20ms
-});
+    if ()
+  }
+);
 ```
-
-### Accessing raw [PerformanceEntry](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry)
-
-### Unsubscribing observers
 
 ## API
 
+### Types
+
+#### `IMetric`
+
+```typescript
+type IMetricName =
+  | 'first-paint'
+  | 'first-contentful-paint'
+  | 'largest-contentful-paint'
+  | 'first-input-delay'
+  | 'cumulative-layout-shift'
+  | 'user-timing'
+  | 'element-timing'
+  | 'navigation-timing'
+  | 'resource-timing'
+  | 'longtask';
+
+type IEntryType =
+  | 'paint'
+  | 'largest-contentful-paint'
+  | 'first-input'
+  | 'layout-shift'
+  | 'measure'
+  | 'element'
+  | 'navigation'
+  | 'resource'
+  | 'longtask';
+
+interface IMetric {
+  // the name of the metric as it's known in the public docs (e.g. "cumulative-layout-shift" vs. "layout-shift")
+  // it will be a custom (defined by user) name in "element-timing" and "user-timing" metrics
+  name: IMetricName | string;
+
+  // current value of the metric
+  value: number;
+
+  // additional helpful information related to the metric
+  meta: {
+    // api name of the metric used for subscribing to events
+    entryType: IEntryType;
+
+    // all raw performance entries used in the metric value calculation,
+    // note that entries will be added to the array as the value changes
+    // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry
+    entries: PerformanceEntry[];
+
+    // date timestamp with value when the metric data was initialized
+    createdAt: number;
+
+    // date timestamp with value when the metric data was updated last time
+    updatedAt?: number;
+
+    // url of request made by the browser
+    // appears only in "resource-timing" and "navigation-timing" metrics
+    url?: string;
+  };
+}
+```
+
+#### `IMetricCallback`
+
+```typescript
+interface IMetricCallback {
+  (metric: IMetric): void;
+}
+```
+
+#### `IPerformanceObservers`
+
+```typescript
+type IPerformanceObservers = {
+  [key in IMetricName]?: PerformanceObserver;
+};
+```
+
+#### `IMetricHistory`
+
+```typescript
+interface IMetricHistory {
+  [index: number]: IMetric;
+  push(IMetric): void;
+}
+```
+
+#### `IMetricNameToEntryTypeMap`
+
+```typescript
+type IMetricNameToEntryTypeMap = {
+  [key in IMetricName]: IEntryType;
+};
+```
+
 ### Methods
 
-#### `observe(metricName: string, handlerFn)`
+#### `observe(metricName: IMetricName, callback: IMetricCallback): PerformanceObserver | undefined`
 
-#### `observeAll(handlerFn)`
+Allows to subscribe to only one specified metric and receive its' updates in a callback function. Returns instance of [PeformanceObserver](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) if metric exists, in other cases returns `undefined` and does nothing. See [usage](#subscribe-to-individual-metrics).
 
-#### `disconnectAll()`
+#### `observeAll(metricsNames: IMetricName[], callback: IMetricCallback): void`
+
+Allows to subscribe to the several metrics and receive all their updates in one callback function. See [usage](#subscribe-to-several-metrics-in-one-batc).
+
+#### `disconnectAll(): void`
+
+Allows to disconnect from all currently registered [PeformanceObservers](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver). See [usage](#unsubscribe-from-metric-updates).
+
+### Properties
+
+#### `registeredObservers: IPerformanceObservers`
+
+Map of metrics with corresponding [PeformanceObservers](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) registetered by the user. It can be useful if you need to access particular observer in order to disconnect it or to call some of its' other native methods.
+
+#### `metricHistory: IMetricHistory`
+
+List of all metrics that were reported by the activated subscriptions. Metric will be added to the array on every report (e.g. when `IMetricCallback` is called). It can be useful for debugging as well as some custom on page visualistions.
+
+#### `METRIC_NAME_TO_ENTRY_TYPE: IMetricNameToEntryTypeMap`
+
+Constant map of public metric names to corresponding browser internal entry type names that are used for subsribing to [PeformanceObservers](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
 
 ## List of supported events
 
@@ -235,9 +343,14 @@ performanceObserver.observeAll(({ name, url, duration }) => {
 - `first-contentful-paint` ("paint" entry)
   - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
   - https://web.dev/fcp
+- `largest-contentful-paint` ("largest-contentful-paint" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/LargestContentfulPaint
+  - https://web.dev/lcp
 - `first-input-delay` ("first-input" entry)
   - https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
   - https://web.dev/fid
+- `cumulative-layout-shift` ("layout-shift" entry)
+  - https://web.dev/cls
 - `user-timing` ("measure" entry)
   - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
   - https://web.dev/custom-metrics/#user-timing-api
@@ -249,6 +362,26 @@ performanceObserver.observeAll(({ name, url, duration }) => {
 - `navigation-timing` ("navigation" entry)
   - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
   - https://web.dev/custom-metrics/#navigation-timing-api
+- `longtask` ("longtask" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/Long_Tasks_API
+  - https://web.dev/custom-metrics/#long-tasks-api
+
+## Development
+
+```bash
+# install dependencies
+yarn
+
+# run unit tests
+yarn test
+
+# create library build (umd + esnext)
+yarn build
+```
+
+### Example
+
+Please follow instrucrions in corresponding [README.md](https://github.com/sumup/performance-observer/blob/master/example/README.md) file.
 
 ## Code of conduct
 

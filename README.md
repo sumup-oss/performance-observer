@@ -3,7 +3,8 @@
 <!-- [![Version](https://img.shields.io/npm/v/@sumup/performance-observer)](https://www.npmjs.com/package/@sumup/performance-observer)
 [![Coverage](https://img.shields.io/codecov/c/github/sumup/performance-observer)](https://codecov.io/gh/sumup-oss/performance-observer) [![License](https://img.shields.io/github/license/sumup/performance-observer)](https://github.com/sumup-oss/performance-observer/blob/master/LICENSE) -->
 
-> Generic interface for measuring performance metrics. It supports all [web-vitals](https://web.dev/vitals/) and [custom metrics](https://web.dev/custom-metrics/). Powered by native browser [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
+> Generic interface for measuring performance metrics. It supports all [web-vitals](https://web.dev/vitals/) and [custom metrics](https://web.dev/custom-metrics/).
+> Powered by native browser [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
 
 ## Table of Contents <!-- omit in toc -->
 

@@ -24,10 +24,11 @@ import getFirstTabHiddenTime from '../utils/get-first-tab-hidden-time';
 // used for "larget-contentful-paint" metric
 // https://developer.mozilla.org/en-US/docs/Web/API/LargestContentfulPaint
 // https://web.dev/lcp
-const largestContentfulPaintHandler: IMetricReporter = (
+const largestContentfulPaintReporter: IMetricReporter = (
   entryType,
   metricName,
-  reportMetric
+  reportMetric,
+  reportAllChanges
 ) => {
   const metric = createMetric(metricName, entryType);
   const firstTabHiddenTime = getFirstTabHiddenTime();
@@ -44,11 +45,15 @@ const largestContentfulPaintHandler: IMetricReporter = (
       metric.value = value;
       metric.meta.updatedAt = Date.now();
       metric.meta.entries.push(entry);
+
+      if (reportAllChanges) {
+        reportMetric(metric);
+      }
     }
   };
   const observer = createObserver(entryType, entryHandler as IEntryHandler);
 
-  if (observer) {
+  if (observer && !reportAllChanges) {
     let isReported = false;
     const report = (): void => {
       if (isReported) {
@@ -77,4 +82,4 @@ const largestContentfulPaintHandler: IMetricReporter = (
   return observer;
 };
 
-export default largestContentfulPaintHandler;
+export default largestContentfulPaintReporter;

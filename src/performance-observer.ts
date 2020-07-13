@@ -18,14 +18,17 @@ import {
   IMetricNameToEntryTypeMap,
   IMetric,
   IMetricName,
-  IMetricCallback,
   IMetricHistory,
-  IEntryType
+  IEntryType,
+  IObserveMethod,
+  IObserveAllMethod,
+  IDisconnectMethod,
+  IDisconnectAllMethod
 } from './types';
 
 import getMetricReporter from './reporters';
 
-// advertised name vs. api name
+// public/doc name vs. internal api name used for its' calculation
 export const METRIC_NAME_TO_ENTRY_TYPE: IMetricNameToEntryTypeMap = {
   'first-input-delay': 'first-input',
   'first-paint': 'paint',
@@ -44,10 +47,11 @@ export const registeredObservers: IPerformanceObservers = {};
 
 export const metricHistory: IMetricHistory = [];
 
-export function observe(
-  metricName: IMetricName,
-  callback: IMetricCallback
-): PerformanceObserver | undefined {
+export const observe: IObserveMethod = (
+  metricName,
+  callback,
+  reportAllChanges = false
+) => {
   const entryType: IEntryType = METRIC_NAME_TO_ENTRY_TYPE[metricName];
 
   if (!entryType || registeredObservers[metricName]) {
@@ -59,35 +63,41 @@ export function observe(
     metricHistory.push(metric);
     callback(metric);
   };
-  const observerInstance = metricReporter(entryType, metricName, onMetric);
+  const observerInstance = metricReporter(
+    entryType,
+    metricName,
+    onMetric,
+    reportAllChanges
+  );
 
   registeredObservers[metricName] = observerInstance;
 
   return observerInstance;
-}
+};
 
-export function observeAll(
-  metricNames: IMetricName[],
-  callback: IMetricCallback
-): void {
+export const observeAll: IObserveAllMethod = (
+  metricNames,
+  callback,
+  reportAllChanges = false
+) => {
   for (const metricName of metricNames) {
-    observe(metricName, callback);
+    observe(metricName, callback, reportAllChanges);
   }
-}
+};
 
-export function disconnect(metricName: IMetricName): void {
+export const disconnect: IDisconnectMethod = (metricName) => {
   const observer = registeredObservers[metricName];
 
   if (observer) {
     observer.disconnect();
     delete registeredObservers[metricName];
   }
-}
+};
 
-export function disconnectAll(metricNames?: IMetricName[]): void {
+export const disconnectAll: IDisconnectAllMethod = (metricNames) => {
   const targetMetricNames = metricNames || Object.keys(registeredObservers);
 
   for (const metricName of targetMetricNames as IMetricName[]) {
     disconnect(metricName);
   }
-}
+};

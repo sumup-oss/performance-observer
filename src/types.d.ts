@@ -98,6 +98,31 @@ export interface IMetricReporter {
   (
     entryType: IEntryType,
     metricName: IMetricName,
-    reportMetric: IMetricCallback
+    reportMetric: IMetricCallback,
+    reportAllChanges?: boolean
   ): PerformanceObserver | undefined;
+}
+
+export interface IObserveMethod {
+  (
+    metricName: IMetricName,
+    callback: IMetricCallback,
+    reportAllChanges?: boolean
+  ): PerformanceObserver | undefined;
+}
+
+export interface IObserveAllMethod {
+  (
+    metricNames: IMetricName[],
+    callback: IMetricCallback,
+    reportAllChanges?: boolean
+  ): void;
+}
+
+export interface IDisconnectMethod {
+  (metricName: IMetricName): void;
+}
+
+export interface IDisconnectAllMethod {
+  (metricNames?: IMetricName[]): void;
 }

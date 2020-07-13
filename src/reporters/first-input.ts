@@ -26,7 +26,7 @@ import getFirstTabHiddenTime from '../utils/get-first-tab-hidden-time';
 // used for "first-input-delay" metric
 // https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
 // https://web.dev/fid
-const firstInputHandler: IMetricReporter = (
+const firstInputReporter: IMetricReporter = (
   entryType,
   metricName,
   reportMetric
@@ -48,4 +48,4 @@ const firstInputHandler: IMetricReporter = (
   return observer;
 };
 
-export default firstInputHandler;
+export default firstInputReporter;

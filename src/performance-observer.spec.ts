@@ -24,10 +24,15 @@ describe('performance-observer module', () => {
     processingStart: 10,
     startTime: 5
   };
+  const mockFirstPaint = {
+    entryType: 'paint',
+    name: 'first-paint',
+    startTime: 1
+  };
   const mockFirstContentfulPaint = {
     entryType: 'paint',
     name: 'first-contentful-paint',
-    startTime: 1
+    startTime: 10
   };
   const mockLargestContentfulPaint = {
     entryType: 'largest-contentful-paint',
@@ -39,6 +44,12 @@ describe('performance-observer module', () => {
     name: 'cumulative-layout-shift',
     value: 0.01,
     hadRecentInput: false
+  };
+  const mockNavigationTiming = {
+    entryType: 'navigation',
+    name: 'https://sumup.com/some-page',
+    duration: 3000,
+    responseStart: 20
   };
   const mockElementTiming = {
     entryType: 'element',
@@ -62,9 +73,12 @@ describe('performance-observer module', () => {
   };
   const mockPeformanceEntries = [
     mockFirstInputDelay,
+    mockFirstPaint,
     mockFirstContentfulPaint,
     mockLargestContentfulPaint,
     mockCumulativeLayoutShift,
+    mockCumulativeLayoutShift,
+    mockNavigationTiming,
     mockElementTiming,
     mockResourceTiming,
     mockCustomMetric,
@@ -84,7 +98,7 @@ describe('performance-observer module', () => {
       return {};
     };
     const disconnect = jest.fn();
-    const takeRecords = () => listEntries();
+    const takeRecords = () => [];
 
     return {
       observe,
@@ -116,6 +130,13 @@ describe('performance-observer module', () => {
     jest.useFakeTimers();
 
     (window as any).PerformanceObserver = MockPerformanceObserver;
+
+    Object.defineProperty(document, 'readyState', {
+      configurable: true,
+      get() {
+        return 'complete';
+      }
+    });
 
     document.addEventListener = jest.fn((event, cb) => {
       mockDocumentEvents[event] = cb;
@@ -153,6 +174,25 @@ describe('performance-observer module', () => {
       expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
+    it('should track "first-paint"', () => {
+      const metricName = 'first-paint';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockFirstPaint.startTime,
+        meta: {
+          entries: [mockFirstPaint],
+          entryType: mockFirstPaint.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done);
+
+      expect(done).toHaveBeenNthCalledWith(1, metric);
+    });
+
     it('should track "first-contentful-paint"', () => {
       const metricName = 'first-contentful-paint';
       const done = jest.fn();
@@ -172,14 +212,14 @@ describe('performance-observer module', () => {
       expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
-    it('should track "largest-contentful-paint"', () => {
+    it('should track "largest-contentful-paint" on user interaction', () => {
       const metricName = 'largest-contentful-paint';
       const done = jest.fn();
       const metric = {
         name: metricName,
         value: mockLargestContentfulPaint.startTime,
         meta: {
-          entries: [mockLargestContentfulPaint, mockLargestContentfulPaint],
+          entries: [mockLargestContentfulPaint],
           entryType: mockLargestContentfulPaint.entryType,
           createdAt: mockDateTimestamp,
           updatedAt: mockDateTimestamp
@@ -194,7 +234,26 @@ describe('performance-observer module', () => {
       expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
-    it('should track "cumulative-layout-shift"', () => {
+    it('should track "largest-contentful-paint" on every occurence if specified', () => {
+      const metricName = 'largest-contentful-paint';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockLargestContentfulPaint.startTime,
+        meta: {
+          entries: [mockLargestContentfulPaint],
+          entryType: mockLargestContentfulPaint.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done, true);
+
+      expect(done).toHaveBeenNthCalledWith(1, metric);
+    });
+
+    it('should track "cumulative-layout-shift" on page hidden', () => {
       const updateDocumentVisibility = (visibility: string): void => {
         Object.defineProperty(document, 'visibilityState', {
           configurable: true,
@@ -224,6 +283,67 @@ describe('performance-observer module', () => {
 
       expect(done).toHaveBeenNthCalledWith(1, metric);
       updateDocumentVisibility('visible');
+    });
+
+    it('should track "cumulative-layout-shift" on every occurence if specified', () => {
+      const metricName = 'cumulative-layout-shift';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockCumulativeLayoutShift.value * 2,
+        meta: {
+          entries: [mockCumulativeLayoutShift, mockCumulativeLayoutShift],
+          entryType: mockCumulativeLayoutShift.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done, true);
+
+      expect(done).toHaveBeenNthCalledWith(2, metric);
+    });
+
+    it('should track "time-to-first-byte"', () => {
+      const metricName = 'time-to-first-byte';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockNavigationTiming.responseStart,
+        meta: {
+          url: mockNavigationTiming.name,
+          entries: [mockNavigationTiming],
+          entryType: mockNavigationTiming.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done);
+      jest.runAllTimers();
+
+      expect(done).toHaveBeenNthCalledWith(1, metric);
+    });
+
+    it('should track navigation timing', () => {
+      const metricName = 'navigation-timing';
+      const done = jest.fn();
+      const metric = {
+        name: metricName,
+        value: mockNavigationTiming.duration,
+        meta: {
+          url: mockNavigationTiming.name,
+          entries: [mockNavigationTiming],
+          entryType: mockNavigationTiming.entryType,
+          createdAt: mockDateTimestamp,
+          updatedAt: mockDateTimestamp
+        }
+      };
+
+      po.observe(metricName, done);
+      jest.runAllTimers();
+
+      expect(done).toHaveBeenNthCalledWith(1, metric);
     });
 
     it('should track element timing', () => {
@@ -320,11 +440,50 @@ describe('performance-observer module', () => {
       po.observeAll(['user-timing', 'first-contentful-paint'], done);
 
       expect(done).toHaveBeenCalledTimes(2);
+
+      expect(po.registeredObservers).toMatchInlineSnapshot(`
+        Object {
+          "first-contentful-paint": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+          "user-timing": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+        }
+      `);
+    });
+  });
+
+  describe('diconnect()', () => {
+    it('should call disconnect for a specified metric', () => {
+      const done = jest.fn();
+      const metric: IMetricName = 'first-contentful-paint';
+
+      po.observe(metric, done);
+
+      expect(po.registeredObservers).toMatchInlineSnapshot(`
+        Object {
+          "first-contentful-paint": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+        }
+      `);
+      expect(done).toHaveBeenCalledTimes(1);
+
+      po.disconnect(metric);
+
+      expect(po.registeredObservers).toMatchInlineSnapshot(`Object {}`);
     });
   });
 
   describe('diconnectAll()', () => {
-    it('should call disconnect on all specified metrics', () => {
+    it('should call disconnect for all metrics', () => {
       const done = jest.fn();
       const metrics: IMetricName[] = ['user-timing', 'first-contentful-paint'];
 
@@ -349,6 +508,41 @@ describe('performance-observer module', () => {
       po.disconnectAll();
 
       expect(po.registeredObservers).toMatchInlineSnapshot(`Object {}`);
+    });
+
+    it('should call disconnect for specified metrics', () => {
+      const done = jest.fn();
+      const metrics: IMetricName[] = ['user-timing', 'first-contentful-paint'];
+
+      po.observeAll(metrics, done);
+
+      expect(po.registeredObservers).toMatchInlineSnapshot(`
+        Object {
+          "first-contentful-paint": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+          "user-timing": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+        }
+      `);
+      expect(done).toHaveBeenCalledTimes(2);
+
+      po.disconnectAll(['first-contentful-paint']);
+
+      expect(po.registeredObservers).toMatchInlineSnapshot(`
+        Object {
+          "user-timing": Object {
+            "disconnect": [MockFunction],
+            "observe": [Function],
+            "takeRecords": [Function],
+          },
+        }
+      `);
     });
   });
 });

@@ -25,7 +25,8 @@ import onBrowserTabHidden from '../utils/on-browser-tab-hidden';
 const layoutShiftReporter: IMetricReporter = (
   entryType,
   metricName,
-  reportMetric
+  reportMetric,
+  reportAllChanges
 ) => {
   const metric = createMetric(metricName, entryType);
   const entryHandler = (entry: ILayoutShift): void => {
@@ -34,11 +35,15 @@ const layoutShiftReporter: IMetricReporter = (
       metric.value += entry.value;
       metric.meta.updatedAt = Date.now();
       metric.meta.entries.push(entry);
+
+      if (reportAllChanges) {
+        reportMetric(metric);
+      }
     }
   };
   const observer = createObserver(entryType, entryHandler as IEntryHandler);
 
-  if (observer) {
+  if (observer && !reportAllChanges) {
     const report = (): void => {
       // force any pending entries to be dispatched
       const entries = observer.takeRecords();

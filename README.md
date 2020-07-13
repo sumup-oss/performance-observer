@@ -42,7 +42,9 @@ yarn add @sumup/performance-observer
 
 #### First Paint
 
-["First Paint" (FP)](https://developer.mozilla.org/en-US/docs/Glossary/First_paint) returns value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in a browser navigation bar) 'til when _any_ render is detected in the browser. For example, painting background colour on a body element could be regarded as "first-paint" in a web page's load -
+["First Paint" (FP)](https://developer.mozilla.org/en-US/docs/Glossary/First_paint) returns value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in a browser navigation bar) 'til when _any_ render is detected in the browser. For example, painting background colour on a body element could be regarded as "first-paint" in a web page's load.
+
+Observer callback will be called only once at the moment when the first paint actually happens on the page.
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -57,7 +59,9 @@ performanceObserver.observe('first-paint',
 
 #### First Contentful Paint
 
-["First Contentful Paint" (FCP)](https://web.dev/fcp/) returns the value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in browser navigation bar) 'til when the content render is detected in the browser. This could be elements containing text, image elements or canvas elements (though contents of iframe elements are not included) -
+["First Contentful Paint" (FCP)](https://web.dev/fcp/) returns the value in milliseconds that represents the time from when the browser navigation started (e.g. user clicks a link or hits enter after writing url in browser navigation bar) 'til when the content render is detected in the browser. This could be elements containing text, image elements or canvas elements (though contents of iframe elements are not included).
+
+Observer callback will be called only once at the moment when the first content element appears on the page.
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -85,7 +89,9 @@ performanceObserver.observe('largest-contentful-paint',
 
 #### First Input Delay
 
-["First Input Delay" (FID)](https://web.dev/fid/) returns the value in milliseconds that represents the time from when user first interacts with your site (e.g. clicks on a link, taps on a button etc.) to the time when browser is actually able to respond to that interaction -
+["First Input Delay" (FID)](https://web.dev/fid/) returns the value in milliseconds that represents the time from when user first interacts with your site (e.g. clicks on a link, taps on a button etc.) to the time when browser is actually able to respond to that interaction.
+
+Observer callback will be called only once at the moment when the first user interaction happens on the page.
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -126,7 +132,9 @@ performanceObserver.observe('time-to-first-byte',
 
 #### User Timing
 
-[User Timing](https://web.dev/custom-metrics/#user-timing-api) allows to measure how much time in milliseconds the certain block of code took to execute. It is useful for optimising complex logic and calculations in the browser -
+["User Timing API"](https://web.dev/custom-metrics/#user-timing-api) allows to measure how much time in milliseconds the certain block of code took to execute. It is useful for optimising complex logic and calculations on the page.
+
+Observer callback will be called only once per one performance measure at the moment when you call `window.performance.measure`, but it can be called several times on the page if you registered several measures.
 
 ```js
 // start recording the time immediately before running a task
@@ -151,7 +159,9 @@ performanceObserver.observe('user-timing',
 
 #### Element Timing
 
-[Element Timing](https://web.dev/custom-metrics/#element-timing-api) allows to measure the time in milliseconds that specific HTML element took to render on the screen. It can be useful for knowing when the largest image or text block was painted to the screen or if you want to measure the render time of some important element on the page (e.g. hero or header) -
+["Element Timing API"](https://web.dev/custom-metrics/#element-timing-api) allows to measure the time in milliseconds that specific HTML element took to render on the screen. It can be useful for knowing when the largest image or text block was painted to the screen or if you want to measure the render time of some important element on the page.
+
+Observer callback will be called only once per registered element at the moment when the element is rendered. It can be called several times on the page if you registered several elements.
 
 ```html
 <img elementtiming="hero-image-paint" src="example.png" />
@@ -170,7 +180,9 @@ performanceObserver.observe('element-timing',
 
 #### Resource Timing
 
-["Resource Timing"](https://web.dev/custom-metrics/#resource-timing-api) allows to measure the time that particular third-party resources of a page (e.g. images, styles, scripts, etc.) took to load -
+["Resource Timing API"](https://web.dev/custom-metrics/#resource-timing-api) allows to measure the time that third-party resources of a page (e.g. images, styles, scripts, etc.) took to load.
+
+Observer callback will be called only once per resource at the moment when this resource is actually completely loaded by the browser, but in general it can be called as many times as many third-party resources are loaded by the page.
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -185,9 +197,11 @@ performanceObserver.observe('resource-timing',
 
 #### Navigation Timing
 
-["Navigation Timing"](https://web.dev/custom-metrics/#navigation-timing-api) returns value in milliseconds that represents the time that page took to load completely. However it can be also useful for understanding more information.
+["Navigation Timing API"](https://web.dev/custom-metrics/#navigation-timing-api) returns value in milliseconds that represents the time that page took to load completely. However it can be also useful for understanding [additional information](https://w3c.github.io/navigation-timing/#sec-PerformanceNavigationTiming) (such as when the `DOMContentLoaded` and `load` events fire).
 
-Note that server response time, also known as "Time to First Byte", was moved to a separate metric.
+Please note that server response time, also known as "Time to First Byte", was moved to a [separate metric](#time-to-first-byte).
+
+Observer callback will be called only once at the moment when the page is completely loaded.
 
 ```js
 import performanceObserver from '@sumup/performance-observer';
@@ -201,6 +215,10 @@ performanceObserver.observe('navigation-timing',
 ```
 
 #### Longtask
+
+[Long Tasks API](https://w3c.github.io/longtasks/) returns value in milliseconds that took particular longtask to finish. It is useful for knowing when the browser's main thread is blocked for long enough to affect frame rate or input latency. Currently the API reports any tasks that executed for longer than 50 milliseconds.
+
+Observer callback will be called only once per longtask at the moment when this longtask is actually completed, but in general it can be called as many times as many longtasks you have on the page.
 
 > ⚠️ Important: you can track longtasks only by creating the observer in the `<head>` of your pages, before loading any other scripts. It's needed because `buffered` flag is not currently supported for longtasks in any browser.
 
@@ -354,11 +372,15 @@ Allows to subscribe to only one specified metric and receive its' updates in a c
 
 #### `observeAll(metricsNames: IMetricName[], callback: IMetricCallback): void`
 
-Allows to subscribe to the several metrics and receive all their updates in one callback function. See [usage](#subscribe-to-several-metrics-in-one-batc).
+Allows to subscribe to the several metrics and receive all their updates in one callback function. See [usage](#subscribe-to-several-metrics-in-one-batch).
 
-#### `disconnectAll(): void`
+#### `disconnect(metricName: IMetricName): void`
 
-Allows to disconnect from all currently registered [PeformanceObservers](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver). See [usage](#unsubscribe-from-metric-updates).
+Allows to unsubscribe from a specified metric updates. See [usage](#unsubscribe-from-individual-metric).
+
+#### `disconnectAll(metricsNames?: IMetricName[]): void`
+
+Allows to unsubscribe from a set of defined or all currently registered metrics updates. See [usage](#unsubscribe-from-several-metrics).
 
 ### Properties
 

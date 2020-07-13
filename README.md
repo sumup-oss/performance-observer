@@ -530,6 +530,10 @@ yarn publish
 
 Please follow instrucrions in corresponding [README.md](https://github.com/sumup/performance-observer/blob/master/example/README.md) file.
 
+## References
+
+This library is based on recommendations and suggestions that are listed in Google's ["Measure and optimize performance and user experience"](https://web.dev/metrics/) documentation and is similar when it comes to [web-vitals](https://web.dev/vitals/) (e.g. FCP, LCP, FID, CLS, TTFB) functionality to the corresponding package from Google - https://github.com/GoogleChrome/web-vitals and is highly inspired by it.
+
 ## Code of conduct
 
 We want to foster an inclusive and friendly community around our Open Source efforts. Like all SumUp Open Source projects, this project follows the Contributor Covenant Code of Conduct. Please, [read it and follow it](CODE_OF_CONDUCT.md).

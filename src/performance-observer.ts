@@ -28,7 +28,7 @@ import {
 
 import getMetricReporter from './reporters';
 
-// public/doc name vs. internal api name used for its' calculation
+// public/doc name vs. internal api name used for its calculation
 export const METRIC_NAME_TO_ENTRY_TYPE: IMetricNameToEntryTypeMap = {
   'first-input-delay': 'first-input',
   'first-paint': 'paint',

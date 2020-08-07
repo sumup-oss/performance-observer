@@ -8,7 +8,7 @@ export default {
     {
       file: 'dist/performance-observer.min.js',
       format: 'umd',
-      name: 'PO'
+      name: 'performanceObserver'
     }
   ],
   plugins: [

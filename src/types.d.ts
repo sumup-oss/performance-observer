@@ -15,68 +15,114 @@
 
 // https://developer.mozilla.org/en-US/docs/Web/API/PerformanceEntry
 export interface IPerformanceEntry extends PerformanceEntry {
-  entryType: IPerfObserverType;
+  entryType: string;
   name: string;
   duration: number;
   startTime: number;
-
-  // appears only in user-timing "measure" entries
-  // https://web.dev/custom-metrics/#user-timing-api
-  identifier?: string;
 }
 
-export type IPerfObserverMetric =
+// https://wicg.github.io/event-timing/#sec-performance-event-timing
+export interface IPerformanceEventTiming extends IPerformanceEntry {
+  processingStart: DOMHighResTimeStamp;
+}
+
+// https://wicg.github.io/layout-instability/#sec-layout-shift
+export interface ILayoutShift extends IPerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+}
+
+// https://wicg.github.io/element-timing/#sec-performance-element-timing
+export interface IPerformanceElementTiming extends IPerformanceEntry {
+  identifier: string;
+}
+
+export type IMetricName =
   | 'first-contentful-paint'
   | 'first-paint'
   | 'first-input-delay'
+  | 'largest-contentful-paint'
+  | 'cumulative-layout-shift'
+  | 'time-to-first-byte'
   | 'element-timing'
   | 'navigation-timing'
   | 'resource-timing'
   | 'user-timing'
   | 'longtask';
 
-export type IPerfObserverMeasure = 'startTime' | 'duration';
-
-export type IPerfObserverType =
+export type IEntryType =
   | 'first-input'
   | 'measure'
   | 'element'
   | 'navigation'
   | 'paint'
+  | 'largest-contentful-paint'
+  | 'layout-shift'
   | 'resource'
   | 'longtask';
 
-export type IPerfObservers = {
-  [key in IPerfObserverType]?: PerformanceObserver;
+export type IPerformanceObservers = {
+  [key in IMetricName]?: PerformanceObserver;
 };
 
-export type IPerfObserverMetricMap = {
-  [key in IPerfObserverMetric]: IPerfObserverType;
+export type IMetricNameToEntryTypeMap = {
+  [key in IMetricName]: IEntryType;
 };
 
-export type IPerfObserverMeasureMap = {
-  [key in IPerfObserverMetric]: IPerfObserverMeasure;
-};
-
-export interface IPerfObserverTrackingData {
+export interface IMetric {
   name: string;
-  url?: string;
-  duration: number;
+  value: number;
+  meta: {
+    entryType: IEntryType;
+    entries: IPerformanceEntry[];
+    url?: string;
+    createdAt: number;
+    updatedAt?: number;
+  };
 }
 
-export interface IPerfObserver {
-  observe(
-    metricName: IPerfObserverMetric,
-    done: (
-      trackingData: IPerfObserverTrackingData,
-      entry: IPerformanceEntry
-    ) => void
+export interface IMetricCallback {
+  (metric: IMetric): void;
+}
+
+export interface IMetricHistory {
+  [index: number]: IMetric;
+  push(IMetric): void;
+}
+
+export interface IEntryHandler {
+  (entry: PerformanceEntry): void;
+}
+
+export interface IMetricReporter {
+  (
+    entryType: IEntryType,
+    metricName: IMetricName,
+    reportMetric: IMetricCallback,
+    reportAllChanges?: boolean
   ): PerformanceObserver | undefined;
-  observeAll(
-    done: (
-      trackingData: IPerfObserverTrackingData,
-      entry: IPerformanceEntry
-    ) => void
-  ): IPerfObservers;
-  disconnectAll(): void;
+}
+
+export interface IObserveMethod {
+  (
+    metricName: IMetricName,
+    callback: IMetricCallback,
+    reportAllChanges?: boolean
+  ): PerformanceObserver | undefined;
+}
+
+export interface IObserveAllMethod {
+  (
+    metricNames: IMetricName[],
+    callback: IMetricCallback,
+    reportAllChanges?: boolean
+  ): void;
+}
+
+export interface IDisconnectMethod {
+  (metricName: IMetricName): void;
+}
+
+export interface IDisconnectAllMethod {
+  (metricNames?: IMetricName[]): void;
 }

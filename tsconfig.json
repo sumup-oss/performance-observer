@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -12,8 +12,8 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "downlevelIteration": true,
-    "outDir": "./dist",
-    "declaration": false
+    "outDir": "./lib",
+    "declaration": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/*.spec.ts"]

@@ -15,12 +15,12 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: '10.x'
+          node-version: '12.x'
       - uses: actions/checkout@v1
-      - name: Set up Python 2.7.17
+      - name: Set up Python 2.7.18
         uses: actions/setup-python@v1
         with:
-          python-version: '2.7.17'
+          python-version: '2.7.18'
       - name: Set node config to use python2.7
         run: yarn config set python python2.7
       - name: install node-gyp

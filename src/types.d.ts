@@ -70,7 +70,7 @@ export type IMetricNameToEntryTypeMap = {
 };
 
 export interface IMetric {
-  name: IMetricName | string;
+  name: string;
   value: number;
   meta: {
     entryType: IEntryType;

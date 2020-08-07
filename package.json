@@ -19,6 +19,7 @@
   "typings": "lib/performance-observer.d.ts",
   "files": [
     "dist",
+    "lib",
     "src"
   ],
   "repository": "git@github.com:sumup/performance-observer.git",

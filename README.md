@@ -19,6 +19,7 @@
   - [Methods](#types)
 - [List of supported metrics](#supported-metrics)
 - [Browser support](#browser-support)
+- [Load as a script](#load-as-a-script)
 - [Code of conduct](#code-of-conduct)
   - [Maintainers](#maintainers)
 - [Contributing](#contributing)
@@ -509,6 +510,36 @@ Browser support for each function is as follows:
 - `resource-timing` - Chromium, Firefox
 - `navigation-timing` - Chromium, Firefox
 - `longtask` - Chromium
+
+## Load as a script
+
+The easiest and recommended way to use this library is by installing it from npm as it's shown [above](#installation) and make it part of your build process. However, in some cases, for more precise tracking of certain metrics (e.g. [longtask](#longtask)) you might want include the script in the `<head />` tag directly either by hardcoding it or loading from a CDN. Here are few examples -
+
+Load from a CDN using a classic script that sets the global `performanceObserver` object to `window`:
+
+```html
+<script
+  defer
+  src="https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js"
+></script>
+<script>
+  window.performanceObserver.observe('first-input-delay', function (metric) {
+    // report metric to your analytics system here
+  });
+</script>
+```
+
+Load from a CDN using a module script (it's safe to use module scripts in legacy browsers because unknown script types are ignored):
+
+```html
+<script type="module">
+  import performanceObserver from 'https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js';
+
+  window.performanceObserver.observe('first-input-delay', function (metric) {
+    // report metric to your analytics system here
+  });
+</script>
+```
 
 ## Development
 

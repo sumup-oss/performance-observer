@@ -55,6 +55,15 @@ export const observe: IObserveMethod = (
   const entryType: IEntryType = METRIC_NAME_TO_ENTRY_TYPE[metricName];
 
   if (!entryType || registeredObservers[metricName]) {
+    const supportedMetricNames = Object.keys(METRIC_NAME_TO_ENTRY_TYPE)
+      .map((key) => key)
+      .join(', ');
+
+    console.warn(
+      `"${metricName}" metric is not supported.
+      You can subscribe to one of these metrics - ${supportedMetricNames}.`
+    );
+
     return;
   }
 

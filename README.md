@@ -56,7 +56,7 @@ yarn add @sumup/performance-observer
 
 The easiest and recommended way to use this library is by installing it from npm as it's shown above and make it part of your build process.
 
-However, in some cases, for more precise tracking of certain metrics (e.g. [longtask](#longtask)) you might want include the script in the `<head />` tag directly either by hardcoding it or loading from a CDN.
+However, in some cases, for more precise tracking of certain metrics (e.g. [longtask](#longtask)) you might want to include the script in the `<head />` tag directly either by hardcoding it or loading from a CDN.
 
 Here is an example of loading a library from a CDN using a classic script that sets the global `performanceObserver` object to `window`:
 

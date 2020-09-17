@@ -8,7 +8,12 @@
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Motivation](#motivation)
 - [Installation](#installation)
+  - [Install as NPM module](#install-as-npm-module)
+  - [Load as a script](#load-as-a-script)
+- [List of supported metrics](#supported-metrics)
+- [Browser support](#browser-support)
 - [Usage](#usage)
   - [Subscribe to individual metrics](#subscribe-to-individual-metrics)
   - [Subscribe to several metrics](#subscribe-to-several-metrics-in-one-batch)
@@ -17,15 +22,25 @@
 - [API](#api)
   - [Types](#types)
   - [Methods](#types)
-- [List of supported metrics](#supported-metrics)
-- [Browser support](#browser-support)
-- [Load as a script](#load-as-a-script)
+- [Development](#development)
+  - [Example project](#example)
+- [References](#references)
 - [Code of conduct](#code-of-conduct)
   - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [About SumUp](#about-sumup)
 
+## Motivation
+
+Optimizing the quality of user experience is important for any application on the web. Modern browsers understand that and provide [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) interface that can be used by developers to observe browser performance measurements like the speed of rendering of certain elements or responsiveness of user interactions on the page.
+
+Unfortunately due to the early age of the API it lacks standardization and ease of use. It's also quite low-level and for every metric you need to go through the documentation for implementing it separately and be aware of certain quirks and workarounds. For example, different types of metrics have different fields to get the performance value or require implementation of certain calculation formulas to get the meaningful metric result.
+
+This projects aims to simplify the usage of [PerformanceObserver API](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) for developers by encapsulating all the complexity, formulas and necessary workarounds. It provides few simple methods that will allow to subscribe to relevant performance metrics and retrieve them in a predictable format in order to send them later to the analytics service of your choice.
+
 ## Installation
+
+### Install as NPM module
 
 ```
 npm install @sumup/performance-observer --save
@@ -36,6 +51,91 @@ or
 ```
 yarn add @sumup/performance-observer
 ```
+
+### Load as a script
+
+The easiest and recommended way to use this library is by installing it from npm as it's shown above and make it part of your build process.
+
+However, in some cases, for more precise tracking of certain metrics (e.g. [longtask](#longtask)) you might want include the script in the `<head />` tag directly either by hardcoding it or loading from a CDN.
+
+Here is an example of loading a library from a CDN using a classic script that sets the global `performanceObserver` object to `window`:
+
+```html
+<script
+  defer
+  src="https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js"
+></script>
+<script>
+  window.performanceObserver.observe('first-input-delay', function (metric) {
+    // report metric to your analytics system here
+  });
+</script>
+```
+
+And here's an example of loading a library from a CDN using a module script (it's safe to use module scripts in legacy browsers because unknown script types are ignored):
+
+```html
+<script type="module">
+  import performanceObserver from 'https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js';
+
+  performanceObserver.observe('first-input-delay', function (metric) {
+    // report metric to your analytics system here
+  });
+</script>
+```
+
+## List of supported events
+
+- `first-paint` ("paint" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
+- `first-contentful-paint` ("paint" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
+  - https://web.dev/fcp
+- `largest-contentful-paint` ("largest-contentful-paint" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/LargestContentfulPaint
+  - https://web.dev/lcp
+- `first-input-delay` ("first-input" entry)
+  - https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
+  - https://web.dev/fid
+- `cumulative-layout-shift` ("layout-shift" entry)
+  - https://web.dev/cls
+- `time-to-first-byte` ("navigation" entry)
+  - https://web.dev/custom-metrics/#navigation-timing-api
+  - https://web.dev/time-to-first-byte
+- `user-timing` ("measure" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
+  - https://web.dev/custom-metrics/#user-timing-api
+- `element-timing` ("element" entry)
+  - https://web.dev/custom-metrics/#element-timing-api
+- `resource-timing` ("resource" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
+  - https://web.dev/custom-metrics/#resource-timing-api
+- `navigation-timing` ("navigation" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
+  - https://web.dev/custom-metrics/#navigation-timing-api
+- `longtask` ("longtask" entry)
+  - https://developer.mozilla.org/en-US/docs/Web/API/Long_Tasks_API
+  - https://web.dev/custom-metrics/#long-tasks-api
+
+## Browser support
+
+This script has been tested and will run without error in all major browsers as well as Internet Explorer 11.
+
+However, the majority of the [PerformanceObserver APIs](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) that are required to get metric values, are only available in Chromium-based browsers (e.g. Google Chrome, Microsoft Edge, Opera, Brave, Samsung Internet, etc.).
+
+Browser support for each function is as follows:
+
+- `first-paint` - Chromium
+- `first-contentful-paint` - Chromium
+- `largest-contentful-paint` - Chromium
+- `first-input-delay` - Chromium
+- `cumulative-layout-shift` - Chromium
+- `time-to-first-byte` - Chromium, Firefox
+- `user-timing` - Chromium, Firefox
+- `element-timing` - Chromium
+- `resource-timing` - Chromium, Firefox
+- `navigation-timing` - Chromium, Firefox
+- `longtask` - Chromium
 
 ## Usage
 
@@ -458,89 +558,6 @@ List of all metrics that were reported by the activated subscriptions. The metri
 #### `METRIC_NAME_TO_ENTRY_TYPE: IMetricNameToEntryTypeMap`
 
 Constant map of public metric names to corresponding browser internal entry type names that are used for subscribing to [PeformanceObservers](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver).
-
-## List of supported events
-
-- `first-paint` ("paint" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
-- `first-contentful-paint` ("paint" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformancePaintTiming
-  - https://web.dev/fcp
-- `largest-contentful-paint` ("largest-contentful-paint" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/LargestContentfulPaint
-  - https://web.dev/lcp
-- `first-input-delay` ("first-input" entry)
-  - https://developer.mozilla.org/en-US/docs/Glossary/First_input_delay
-  - https://web.dev/fid
-- `cumulative-layout-shift` ("layout-shift" entry)
-  - https://web.dev/cls
-- `time-to-first-byte` ("navigation" entry)
-  - https://web.dev/custom-metrics/#navigation-timing-api
-  - https://web.dev/time-to-first-byte
-- `user-timing` ("measure" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceMeasure
-  - https://web.dev/custom-metrics/#user-timing-api
-- `element-timing` ("element" entry)
-  - https://web.dev/custom-metrics/#element-timing-api
-- `resource-timing` ("resource" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceResourceTiming
-  - https://web.dev/custom-metrics/#resource-timing-api
-- `navigation-timing` ("navigation" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming
-  - https://web.dev/custom-metrics/#navigation-timing-api
-- `longtask` ("longtask" entry)
-  - https://developer.mozilla.org/en-US/docs/Web/API/Long_Tasks_API
-  - https://web.dev/custom-metrics/#long-tasks-api
-
-## Browser support
-
-This script has been tested and will run without error in all major browsers as well as Internet Explorer 11.
-
-However, the majority of the [PerformanceObserver APIs](https://developer.mozilla.org/en-US/docs/Web/API/PerformanceObserver) required to get metric values are only available in Chromium-based browsers (e.g. Google Chrome, Microsoft Edge, Opera, Brave, Samsung Internet, etc.).
-
-Browser support for each function is as follows:
-
-- `first-paint` - Chromium
-- `first-contentful-paint` - Chromium
-- `largest-contentful-paint` - Chromium
-- `first-input-delay` - Chromium
-- `cumulative-layout-shift` - Chromium
-- `time-to-first-byte` - Chromium, Firefox
-- `user-timing` - Chromium, Firefox
-- `element-timing` - Chromium
-- `resource-timing` - Chromium, Firefox
-- `navigation-timing` - Chromium, Firefox
-- `longtask` - Chromium
-
-## Load as a script
-
-The easiest and recommended way to use this library is by installing it from npm as it's shown [above](#installation) and make it part of your build process. However, in some cases, for more precise tracking of certain metrics (e.g. [longtask](#longtask)) you might want include the script in the `<head />` tag directly either by hardcoding it or loading from a CDN. Here are few examples -
-
-Load from a CDN using a classic script that sets the global `performanceObserver` object to `window`:
-
-```html
-<script
-  defer
-  src="https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js"
-></script>
-<script>
-  window.performanceObserver.observe('first-input-delay', function (metric) {
-    // report metric to your analytics system here
-  });
-</script>
-```
-
-Load from a CDN using a module script (it's safe to use module scripts in legacy browsers because unknown script types are ignored):
-
-```html
-<script type="module">
-  import performanceObserver from 'https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js';
-
-  window.performanceObserver.observe('first-input-delay', function (metric) {
-    // report metric to your analytics system here
-  });
-</script>
-```
 
 ## Development
 

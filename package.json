@@ -1,6 +1,6 @@
 {
   "name": "@sumup/performance-observer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generic PerformanceObserver API wrapper for measuring performance metrics",
   "scripts": {
     "build": "yarn build:ts && yarn build:js",
@@ -15,8 +15,8 @@
     "prepublishOnly": "yarn build"
   },
   "main": "dist/performance-observer.min.js",
-  "module": "lib/performance-observer.js",
-  "typings": "lib/performance-observer.d.ts",
+  "module": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "files": [
     "dist",
     "lib",

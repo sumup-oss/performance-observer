@@ -87,7 +87,7 @@ export interface IMetricCallback {
 
 export interface IMetricHistory {
   [index: number]: IMetric;
-  push(IMetric): void;
+  push(metric: IMetric): void;
 }
 
 export interface IEntryHandler {

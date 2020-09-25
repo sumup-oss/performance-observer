@@ -23,6 +23,22 @@
     "src",
     "README.md"
   ],
+  "keywords": [
+    "performance",
+    "web-vitals",
+    "custom metrics",
+    "first-contentful-paint",
+    "first-paint",
+    "first-input-delay",
+    "largest-contentful-paint",
+    "cumulative-layout-shift",
+    "time-to-first-byte",
+    "element-timing",
+    "navigation-timing",
+    "resource-timing",
+    "user-timing",
+    "longtask"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sumup-oss/performance-observer.git"

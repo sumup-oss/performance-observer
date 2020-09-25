@@ -20,12 +20,19 @@
   "files": [
     "dist",
     "lib",
-    "src"
+    "src",
+    "README.md"
   ],
-  "repository": "git@github.com:sumup/performance-observer.git",
-  "author": "Dmitri Voronianski <dmitri.voronianskyi@sumup.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumup-oss/performance-observer.git"
+  },
+  "author": "",
   "license": "Apache-2.0",
-  "private": true,
+  "bugs": {
+    "url": "https://github.com/sumup-oss/performance-observer/issues"
+  },
+  "homepage": "https://github.com/sumup-oss/performance-observer#readme",
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",

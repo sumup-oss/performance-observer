@@ -30,7 +30,7 @@ jobs:
       - name: Lint
         run: yarn lint
       - name: Test
-        run: yarn test
+        run: yarn test --coverage --silent
       - name: Build
         run: yarn build
       - name: Codecov

@@ -6,5 +6,5 @@ module.exports = {
     '**/__tests__/**/*.+(ts|tsx|js)',
     '**/?(*.)+(spec|test).+(ts|tsx|js)'
   ],
-  collectCoverageFrom: ['src/**/**/*.ts', '!src/types.d.ts']
+  collectCoverageFrom: ['src/**/**/*.ts', '!src/types.ts']
 };

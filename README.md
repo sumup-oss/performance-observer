@@ -64,7 +64,7 @@ Here is an example of loading a library from a CDN using a classic script that s
 ```html
 <script
   defer
-  src="https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js"
+  src="https://unpkg.com/@sumup/performance-observer@1.0.2/dist/performance-observer.es5.umd.min.js"
 ></script>
 <script>
   window.performanceObserver.observe('first-input-delay', function (metric) {
@@ -77,7 +77,7 @@ And here's an example of loading a library from a CDN using a module script (it'
 
 ```html
 <script type="module">
-  import performanceObserver from 'https://unpkg.com/@sumup/performance-observer@1.0.0/dist/performance-observer.min.js';
+  import performanceObserver from 'https://unpkg.com/@sumup/performance-observer@1.0.2/dist/performance-observer.es5.min.js?module';
 
   performanceObserver.observe('first-input-delay', function (metric) {
     // report metric to your analytics system here

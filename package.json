@@ -1,6 +1,6 @@
 {
   "name": "@sumup/performance-observer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generic PerformanceObserver API wrapper for measuring performance metrics",
   "scripts": {
     "build": "yarn build:ts && yarn build:js",
@@ -10,16 +10,15 @@
     "lint:fix": "yarn lint --fix",
     "test": "jest",
     "test:watch": "jest --watch",
-    "clean": "rimraf dist && rimraf lib",
+    "clean": "rimraf dist",
     "prebuild": "yarn clean",
     "prepublishOnly": "yarn build"
   },
-  "main": "dist/performance-observer.min.js",
-  "module": "lib/index.js",
-  "typings": "lib/index.d.ts",
+  "main": "dist/performance-observer.es5.umd.min.js",
+  "module": "dist/performance-observer.es5.min.js",
+  "typings": "dist/index.d.ts",
   "files": [
     "dist",
-    "lib",
     "src",
     "README.md"
   ],

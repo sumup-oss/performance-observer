@@ -593,7 +593,7 @@ If you feel another member of the community violated our CoC or you are experien
 ### Maintainers
 
 - [Dmitri Voronianski](mailto:dmitri.voronianskyi@sumup.com)
-- [Fernando Fleury](mailto:fernando.fleury@sumup.com)
+- [Connor Bär](mailto:connor.baer@sumup.com)
 
 ## Contributing
 
